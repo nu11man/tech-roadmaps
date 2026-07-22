@@ -1,0 +1,6 @@
+# Switch 'theme' to 'remote_theme' so your local server can download the assets
+remote_theme: pages-themes/minimal
+
+# Activate the background downloader plugin
+plugins:
+  - jekyll-remote-theme

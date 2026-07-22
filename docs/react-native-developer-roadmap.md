@@ -1,3 +1,8 @@
+---
+layout: default
+title: React Native Developer Roadmap
+---
+
 # 📱 React Native Developer Roadmap
 
 A structured path from beginner to professional React Native developer. Check off items as you progress.
