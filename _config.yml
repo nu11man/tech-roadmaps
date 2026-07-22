@@ -2,3 +2,11 @@ theme: jekyll-theme-minimal
 title: Julio César
 description: Desarrolador de software, con experiencia en desarrollo web y móvil. Apasionado por la tecnología y la innovación.
 # logo: /assets/img/profile.png
+
+# Every page/entry gets the theme layout automatically, so a new entry only
+# needs a `title` in its front matter (the `---` block is still required).
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

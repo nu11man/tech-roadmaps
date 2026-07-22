@@ -1,0 +1,28 @@
+{%- comment -%}
+Lists every ENTRY that lives in an immediate sub-folder of the page including
+this file. Each entry is its own folder containing an `index.md`, e.g.
+
+    docs/frontend/index.md                              <- includes this file
+    docs/frontend/react-native-developer-roadmap/index.md   <- an entry
+
+Create a new folder with an index.md inside a category and it appears here
+automatically on the next build. Sorted by `title`.
+{%- endcomment -%}
+{%- capture items -%}
+  {%- assign candidates = site.pages | where: "name", "index.md" | sort: "title" -%}
+  {%- for entry in candidates -%}
+    {%- unless entry.url == page.url -%}
+      {%- if entry.dir contains page.dir -%}
+        {%- assign rest = entry.dir | remove_first: page.dir | split: '/' -%}
+        {%- if rest.size == 1 -%}
+  <li><a href="{{ entry.url | relative_url }}">{{ entry.title | default: rest[0] }}</a></li>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if items contains '<li>' -%}
+<ul class="entries">{{ items }}</ul>
+{%- else -%}
+<p><em>Aún no hay entradas aquí.</em></p>
+{%- endif -%}
