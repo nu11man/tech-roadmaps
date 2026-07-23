@@ -3,7 +3,7 @@ layout: default
 title: Currículo Profesional
 ---
 
-# Ing. Julio César Echeverri
+# Julio César Echeverri
 
 **Full Stack Software Developer**
 
@@ -13,7 +13,7 @@ React • React Native • NestJS • PostgreSQL • MongoDB • Linux
 
 ## Perfil
 
-Ingeniero Electrónico y Full Stack Software Engineer con 10 años de experiencia diseñando y desarrollando aplicaciones web y móviles de alto rendimiento. Especializado en ecosistemas JavaScript/TypeScript, React, React Native y NestJS, experiencia en creación de módulos nativos para Android/iOS en aplicaciones React Native, experiencia con GraphQL, CI/CD y liderazgo técnico.
+Ingeniero Electrónico y Full Stack Software Developer con 10 años de experiencia diseñando y desarrollando aplicaciones web y móviles de alto rendimiento. Especializado en ecosistemas JavaScript/TypeScript, React, React Native y NestJS, experiencia en creación de módulos nativos para Android/iOS en aplicaciones React Native, experiencia con GraphQL, CI/CD y liderazgo técnico.
 
 ## Fortalezas
 
