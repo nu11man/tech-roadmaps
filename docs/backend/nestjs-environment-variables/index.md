@@ -106,7 +106,7 @@ bootstrap();
 
 Ahora podemos hacer uso de las variables de entorno, pero es importante tener en cuenta que tenemos dos formas de lograrlo:
 
-#### Declaración global de ConfigModule
+#### 1. Declaración global de ConfigModule
 
 En este punto tenemos realmente dos formas de usar el servicio `ConfigService`. Si declaramos el módulo como **global** (con `isGlobal: true` ) en el objeto que se le pasa a `forRoot()` podemos entonces inyectar el módulo en cada servicio que lo requiera sin tener que importarlo nuevamente en cada módulo, esto es:
 
@@ -139,7 +139,7 @@ export class UserService {
 }
 ```
 
-#### Importar ConfigModule Individualmente
+#### 2. Importar ConfigModule Individualmente
 
 En este caso vamos al módulo que requiere el acceso a variables de entorno e importamos `ConfigModule`.
 
