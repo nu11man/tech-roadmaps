@@ -59,7 +59,7 @@ export const envSchema = Joi.object({
 
 ### Configuración del servicio
 
-Una vez instalamos el `config module` y que creamos el `loader` y el `validator`, vamos a dirigirnos al archivo `app.module.ts` y en la sección de **imports** inyectamos el `config service` y su configuración como se muestra a continuación:
+Una vez instalado el `config module` y creados el `loader` y el `validator`, vamos a dirigirnos al archivo `app.module.ts` y en la sección de **imports** inyectamos el `config module` y su configuración como se muestra a continuación:
 
 ```javascript
 import { ConfigModule } from "@nestjs/config";
@@ -80,3 +80,146 @@ export class AppModule {}
 ```
 
 ### Cómo Usar las Variables de Entorno
+
+Ahora, dado que el **app.module** ha importado el `ConfigModule` podemos intentar acceder a valores de variables de entorno en la función `bootstrap` del archivo `main.ts` como se muestra en el siguiente fragmento de código, donde obtenemos los valores de `port` y el contenido del grupo `database`:
+
+```typescript
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { ConfigService } from "@nestjs/config";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get("port");
+  const database = configService.get("database");
+
+  console.log("port", port);
+  console.log("database", database);
+
+  await app.listen(Number(port));
+}
+
+bootstrap();
+```
+
+Ahora podemos hacer uso de las variables de entorno, pero es importante tener en cuenta que tenemos dos formas de lograrlo:
+
+#### Declaración global de ConfigModule
+
+En este punto tenemos realmente dos formas de usar el servicio `ConfigService`. Si declaramos el módulo como **global** (con `isGlobal: true` ) en el objeto que se le pasa a `forRoot()` podemos entonces inyectar el módulo en cada servicio que lo requiera sin tener que importarlo nuevamente en cada módulo, esto es:
+
+En el archivo `app.module.ts`
+
+```javascript
+// src/app.module.ts
+ConfigModule.forRoot({
+  isGlobal: true,          // 👈 add this
+  load: [configLoader],
+  validationSchema: envSchema,
+}),
+```
+
+Luego en cualquier servicio podemos inyectar la dependencia directamente en el constructor:
+
+```typescript
+// src/users/user.service.ts
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+
+@Injectable()
+export class UserService {
+  constructor(private readonly configService: ConfigService) {}
+
+  getDbUrl(): string {
+    // Nested keys from the configLoader work with dot notation:
+    return this.configService.get<string>("database.url");
+  }
+}
+```
+
+#### Importar ConfigModule Individualmente
+
+En este caso vamos al módulo que requiere el acceso a variables de entorno e importamos `ConfigModule`.
+
+```typescript
+// src/users/users.module.ts
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { UsersService } from "./users.service";
+
+@Module({
+  imports: [ConfigModule], // 👈 makes ConfigService injectable here
+  providers: [UsersService],
+})
+export class UsersModule {}
+```
+
+Luego vamos al servicio e inyectamos `ConfigService` en el constructor:
+
+```typescript
+// src/users/users.service.ts
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly configService: ConfigService) {}
+
+  getDbUrl(): string {
+    // Nested keys from your configLoader work with dot notation:
+    return this.configService.get<string>("database.url");
+  }
+}
+```
+
+---
+
+### Otras Buenas Prácticas
+
+#### Type Safety
+
+Al acceder una variable de entorno de la siguiente forma:
+
+```typescript
+this.configService.get<string>("port");
+```
+
+El valor de retorno es `string | undefined` si queremos que se lance una excepción si la variable no está definida podemos usar el método `getOrThrow`:
+
+```typescript
+this.configService.getOrThrow<string>("database.url");
+```
+
+Sin embargo, desde secciones previas ya contamos con el validador de objetos `Joi` para asegurarnos que realmente no habrán, en tiempo de ejecución, variables indefinidas.
+
+#### Parseado de Valores en el Config Loader
+
+Dado que todos los valores que vienen de un archivo de ambiente son `strings`, se pueden _parsear_ los valores al momento de usarlos en el servicio o al momento de cargarlos en el _ConfigLoader_ definido previamente:
+
+Transformar un valor para usarlo:
+
+```typescript
+const port = configService.get("port");
+
+await app.listen(Number(port));
+// o
+await app.listen(parseInt(port));
+```
+
+O hacer el _parsing_ en el **ConfigLoader**.
+
+```typescript
+export const configLoader = () => {
+  return {
+    port: parseInt(process.env.PORT, 10) || 3000,
+  };
+};
+```
+
+---
+
+Esto ha sido todo por hoy, espero que te resulte interesante el contenido de este artículo.
+
+Autor: Julio Echeverri
