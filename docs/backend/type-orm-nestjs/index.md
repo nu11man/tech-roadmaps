@@ -5,13 +5,15 @@ title: Configuración de TypeORM en NestJS
 
 # Configuración de TypeORM en NestJS
 
-Un ORM es un xxx que nos permite realizar un mapeo de las entidades de base de datos a objetos en el lenguaje que estemos utilizando, lo que permite un manejo más flexible de cara al desarrollador al abstraer en gran medida la carga de la gestión de la base de datos desde nuestro código fuente.
+Un ORM es un paquete de software que nos permite realizar un mapeo de las entidades de base de datos a objetos definidos en el lenguaje que estemos utilizando, lo que permite un manejo más flexible de la capa de persistencia de cara al desarrollador, al abstraer y automatizar en gran medida la carga de la gestión de la base de datos desde nuestro código fuente.
 
 En NestJS, contamos con múltiples alternativas para realizar este mapeo automáticamente, siendo _TypeORM_ uno de los más utilizados por la comunidad ya que, además, tiene soporte nativo para trabajar con bases de datos relacionales y no relacionales (SQL y NoSQL), por ejemplo, MySQL, PostgreSQL, MongoDB, etc.
 
 ## Instalación
 
-Vamos a configurar TypeORM en nuestro proyecto, suponiendo además que trabajaremos con PostgreSQL como base de datos. Entonces realizaremos la instalación de 3 dependencias.
+Vamos a configurar TypeORM en nuestro proyecto, suponiendo además que trabajaremos con PostgreSQL como el motor de base de datos.
+
+Entonces realizaremos la instalación de 3 dependencias.
 
 1. TypeORM (`typeorm`)
 2. El módulo de TypeORM para NestJS (`@nestjs/typeorm`)
@@ -67,3 +69,15 @@ import { typeOrmConfig } from "./config/database/typeorm.config";
 })
 export class AppModule {}
 ```
+
+De esta forma hemos completado el primer paso para agregar persistencia de datos a nuestros servicios, si ejecutas tu servidor, la conexión se realizará de forma exitosa.
+
+Es importante tener en cuenta que parte de la configuración hace uso de variables de entorno y el módulo `ConfigModule` que ya vimos en un post anterior.
+
+Eso ha sido todo por hoy, en la siguiente entrada veremos como crear las entidades con TypeORM y sus decoradores, ya verás como nos facilitan la vida.
+
+Espero que esta información te haya resultado útil, nos vemos en el próximo artículo.
+
+---
+
+Autor: Julio César Echeverri
