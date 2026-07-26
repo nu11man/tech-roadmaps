@@ -115,7 +115,11 @@ export default defineConfig({
 });
 ```
 
-**Nota:** Es posible que el editor muestre un error donde indica que no encuentra el módulo `path` o sus definiciones de tipo, para ello debemos instalar `yarn add --dev @types/node`.
+**Nota:** Es posible que el editor muestre un error donde indica que no encuentra el módulo `path` o sus definiciones de tipo, para ello debemos instalar `@types/node` y esto lo logramos con el siguiente comando:
+
+```bash
+yarn add --dev @types/node
+```
 
 Ahora puedes ejecutar nuevamente el servidor y hacer uso de los **import alias** y continuar con el desarrollo de tu aplicación web.
 
