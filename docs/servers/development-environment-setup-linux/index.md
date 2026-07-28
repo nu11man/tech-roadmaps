@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Variables de Entorno en NestJS
+title: Configuración de Ambiente de Desarrollo en Ubuntu
 ---
 
 # Configuración del Ambiente de Desarrollo en Ubuntu
