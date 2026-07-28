@@ -13,7 +13,7 @@ React • React Native • NestJS • PostgreSQL • MongoDB • Linux
 
 ## Perfil
 
-Ingeniero Electrónico y Full Stack Software Developer con 10 años de experiencia diseñando y desarrollando aplicaciones web y móviles de alto rendimiento. Especializado en ecosistemas JavaScript/TypeScript, React, React Native y NestJS, experiencia en creación de módulos nativos para Android/iOS en aplicaciones React Native, experiencia con GraphQL, CI/CD y liderazgo técnico.
+Ingeniero Electrónico y Full Stack Software Developer con 8 años de experiencia diseñando y desarrollando aplicaciones web y móviles de alto rendimiento. Especializado en ecosistemas JavaScript/TypeScript, React, React Native y NestJS, experiencia en creación de módulos nativos para Android/iOS en aplicaciones React Native, experiencia con GraphQL, CI/CD y liderazgo técnico.
 
 ## Fortalezas
 
@@ -25,7 +25,7 @@ Ingeniero Electrónico y Full Stack Software Developer con 10 años de experienc
 
 ## Experiencia Destacada
 
-- 10 años desarrollando soluciones web y móviles.
+- 8 años desarrollando soluciones web y móviles.
 - Desarrollo frontend con React.
 - Desarrollo backend con NestJS.
 - Desarrollo móvil multiplataforma con React Native.
