@@ -3,7 +3,7 @@ layout: default
 title: Instalación y Configuración de PostgreSQL en Ubuntu
 ---
 
-## Instalación de PostgreSQL
+## Instalación, Configuración y Uso de PostgreSQL en Ubuntu
 
 Actualizamos el índice de paquetes del sistema operativo y posteriormente instalamos el paquete `postgresql`.
 
