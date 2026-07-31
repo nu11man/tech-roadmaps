@@ -197,4 +197,83 @@ Podemos pasar un array de strings cuando queremos que un mismo manejador o contr
 
 ---
 
-## Servicios en NestJS
+## Services y Providers en NestJS {#que-es-un-servicio}
+
+Un provider puede ser un valor, una clase, una función Factory síncrona o asíncrona que está anotada con el decorator `@Injectable()` y se usan vía _Inyección de Dependencias_.
+
+Tres de sus características son:
+
+- Son _singletons_.
+- Los _Providers_ deben inyectarse en un módulo para que sean utilizables en su interior.
+- Se pueden exportar desde un módulo para que estén disponible en otro módulos que lo importen.
+
+Y **¿qué es un _service_?** te estarás preguntando.
+
+Un servicio es un concepto común en el desarrollo de software, en NestJS, es una clase anotada con el decorador `@Injectable()` igual que un _Provider_, la diferencia es que además de ser necesariamente una clase, también es la principal fuente de la lógica de negocio. Por ejemplo, será llamado por un controller para crear un elemento en una base de datos, validar datos entrantes, generar respuestas, etc.
+
+**Nota**: Todo servicio es un _Provider_, pero no todos los _Providers_ son servicios.
+
+### ¿Cómo se crea un Service? {#crear-servicios}
+
+Como ya estarás acostumbrado, NestJS también ofrece un esquemático para crear servicios, la sintaxis es la siguiente:
+
+```bash
+nest g service <service-name>
+
+# Ejemplo
+nest generate service users
+```
+
+Con la línea anterior, el asistente de NestJS creará 2 archivos nuevos, la clase que define el servicio y su test unitario y, actualizará el atributo de `providers` del _Users Module_ definido en el archivo `users.module.ts`, para que dicho servicio pueda ser utilizado dentro de este módulo.
+
+Finalmente el módulo de usuarios quedaría de esta forma:
+
+```typescript
+import { Module } from "@nestjs/common";
+import { UsersController } from "./users.controller";
+import { UsersService } from "./users.service";
+
+@Module({
+  controllers: [UsersController],
+  providers: [UsersService],
+})
+export class UsersModule {}
+```
+
+La clase del servicio quedaría como:
+
+```typescript
+import { Injectable } from "@nestjs/common";
+
+@Injectable()
+export class UsersService {
+  sendHello() {
+    return "hello";
+  }
+}
+```
+
+Y el controller que usaría los métodos de este servicio tendría la siguiente forma:
+
+```typescript
+import { Controller, Get, Post } from "@nestjs/common";
+import { UsersService } from "./users.service";
+
+@Controller("users")
+export class UsersController {
+  constructor(private userService: UsersService) {}
+
+  @Get()
+  getUsers() {
+    return this.userService.sendHello();
+  }
+}
+```
+
+Es de suma importancia ver como se crea la instancia del servicio en el constructor del controlador, de esta forma se puede acceder al servicio y sus métodos con el operador `this`, como se ve en el _Handler_ **getUsers()**
+
+Finalmente, a grandes rasgos estos son los que considero conceptos más fundamentales para trabajar con NestJS. Esto es todo por ahora respecto a Modules, Controllers y Providers, espero que te haya resultado útil esta información, nos vemos en los próximos artículos donde hablaremos de **DTO (data-transfer-objects**) y de acceso a query params, path params o body de las requests.
+
+---
+
+Autor: Julio César Echeverri.
