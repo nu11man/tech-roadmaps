@@ -72,7 +72,17 @@ export class AppModule {}
 
 De esta forma hemos completado el primer paso para agregar persistencia de datos a nuestros servicios, si ejecutas tu servidor, la conexión se realizará de forma exitosa.
 
-Es importante tener en cuenta que parte de la configuración hace uso de variables de entorno y el módulo `ConfigModule` que ya vimos en un post anterior.
+Es importante tener en cuenta que parte de la configuración hace uso de variables de entorno y el módulo `ConfigModule` que ya vimos en un post anterior. Cabe mencionar además que, la configuración anterior funciona si `ConfigModule` está declarado como global (`isGlobal: true`) esto suele ser lo normal en proyectos NestJS. En caso de que `ConfigModule` no sea global, debemos inyectarlo en la función factory para que TypeORM pueda tener acceso igualmente, el cambio puntual sería:
+
+```typescript
+...
+
+TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: typeOrmConfig
+    }),
+```
 
 Eso ha sido todo por hoy, en la siguiente entrada veremos como crear las entidades con TypeORM y sus decoradores, ya verás como nos facilitan la vida.
 
