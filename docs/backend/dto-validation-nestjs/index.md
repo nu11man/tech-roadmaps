@@ -5,6 +5,17 @@ title: DTO y Validación Automática de Datos en NestJS
 
 # DTO y Validación Automática de Datos en NestJS
 
+**Contenido**
+
+- [Instalación de dependencias](#instalacion-dependencias)
+- [Validación de objetos simples](#validacion-objetos-simples)
+- [Validación de objetos anidados](#validacion-objetos-anidados)
+- [Uso de DTO en el Controlador](#usar-dto-en-el-controlador)
+
+---
+
+### Instalación de dependencias {#instalacion-dependencias}
+
 Para iniciar vamos a instalar dos depedencias muy importantes:
 
 ```bash
@@ -16,6 +27,8 @@ O si estás usando _yarn_:
 ```bash
 yarn add class-validator class-transformer
 ```
+
+### Validación de objetos simples {#validacion-objetos-simples}
 
 Ahora dentro del directorio del módulo que queremos validar, vamos a crear la carpeta _dto_ y dentro de esta vamos a crear los archivos que contienen las definiciones de los DTOs.
 
@@ -33,9 +46,52 @@ export class CreateUserDto {
 }
 ```
 
-**Nota**: Los DTO suelen estar asociados a acciones, por eso iniciamos con la acción `create` para el DTO asociado al método CREATE del controlador, los mismo aplica para el método UPDATE, etc.
+**Nota**: Los DTO suelen estar asociados a acciones, por eso iniciamos con la acción `create` para el DTO asociado al método CREATE del controlador, lo mismo aplica para el método UPDATE, etc.
 
 **Nota**: Los decoradores de `class-validator` reciben objetos con algunas configuraciones, una de las más utilizada es la propiedad `message` que permite indicar un mensaje personalizado si hay un error de validación.
+
+### Validación de objetos anidados {#validacion-objetos-anidados}
+
+En la mayoría de ocasiones, suele ocurrir que manejamos DTOs donde una o más propiedades corresponden a objetos anidados, por ejemplo un objeto con la siguiente forma:
+
+```json
+  "email": "usuario@ejemplo.com",
+  "password": "asdasd",
+  "profile": {
+    "name": "Juan Carlos",
+    "lastName": "Molina",
+    "avatar": null,
+    "phone": "3247876523"
+  }
+```
+
+En este caso vamos a tener definido el DTO `CreateUserDto`, pero adicionalmente crearemos un DTO que describa el objeto _Profile_, lo llamaremos `CreateProfileDto`.
+
+```typescript
+import { IsUrl, IsNotEmpty, IsString, IsOptional } from "class-validator";
+
+export class CreateProfileDto {
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName!: string;
+
+  @IsUrl()
+  @IsOptional()
+  avatar!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone!: string;
+}
+```
+
+Ahora para actualizar el `CreateUserDto` e incluir el atributo `profile` como un DTO anidado y, que además garanticemos las validaciones internas del mismo, realizamos el siguiente ajuste en el DTO de creación de usuarios.
+
+### Uso de DTO en el Controlador {#usar-dto-en-el-controlador}
 
 Para hacer uso de los DTOs que definimos, vamos al controlador de la ruta específica y en el handler aplicamos la siguiente sintaxis:
 
