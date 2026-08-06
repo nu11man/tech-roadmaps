@@ -1,13 +1,22 @@
 ---
 layout: default
-title: Iniciar un Projecto con NestJS
+title: Iniciar un Proyecto con NestJS
 ---
 
 # Iniciar un Proyecto con NestJS
 
 Los inicios suelen ser de vital importancia en casi cualquier aspecto de la vida, así mismo con nuestros proyectos. En este artículo veremos como iniciar un proyecto de NestJS y sus configuraciones iniciales.
 
-## Instalación de NestJS CLI
+**Contenido**
+
+- [Instalación de NestJS CLI](#instalacion-de-cli)
+- [Configuración de Alias en los Imports](#configuracion-alias-imports)
+- [Configuración de Jest](#configuracion-de-jest)
+- [Configuración de Prettier](#configuracion-de-prettier)
+
+---
+
+### Instalación de NestJS CLI {#instalacion-de-cli}
 
 En primer lugar debemos instalar la CLI (Command Line Interface) de NestJS que entre otras cosas nos ayuda a crear proyectos o sus componentes internos.
 
@@ -35,18 +44,18 @@ Una vez finalizado el proceso de creación podemos ejecutar las siguientes accio
 - `yarn run format`: Ejecuta el plugin de `prettier` para dar formato al código fuente.
 - `yarn run lint`: Ejecuta el linter `ESLint` y corrige o muestra los errores propios de esta herramienta.
 
-## Configuración de Alias en los Imports
+### Configuración de Alias en los Imports {#configuracion-alias-imports}
 
 Ya hemos creado y puesto en marcha nuestro servicio. Ahora, vamos a realizar un par de ajustes para mejorar la experiencia de desarrollo, específicamente, en lo relativo a la gestión de los `imports` del código fuente. En otras palabras, pasar de esto:
 
 ```typescript
-import { utility } from '../../../../utils/utility.ts'
+import { utility } from "../../../../utils/utility.ts";
 ```
 
 a esto:
 
 ```typescript
-import { utility } from '@utils/utility.ts'
+import { utility } from "@utils/utility.ts";
 ```
 
 Para lograr esto vamos a ajustar, en primer lugar, el archivo `tsconfig.json` y le indicaremos a Typescript cómo realizar el mapeo de las rutas, para esto agregamos el fragmento `paths` en el json:
@@ -62,10 +71,9 @@ Para lograr esto vamos a ajustar, en primer lugar, el archivo `tsconfig.json` y 
     }
   }
 }
-
 ```
 
-## Configuración de Jest
+### Configuración de Jest {#configuracion-de-jest}
 
 Dado que NestJS utiliza Jest como motor de pruebas unitarias y Jest no lee directamente la configuración de Typescript, tendremos que actualizar la configuración de Jest para que la herramienta pueda comprender también el mapeo de los `imports`.
 
@@ -99,7 +107,7 @@ yarn run start
 yarn run start:dev
 ```
 
-## Configuración de Prettier
+### Configuración de Prettier {#configuracion-de-prettier}
 
 Finalmente nos queda agregar una pequeña configuración final referente al formate de código, a cargo de `prettier` y para esta herramienta, pondremos la siguiente configuración en el archivo `.prettierrc`:
 
@@ -113,12 +121,14 @@ Finalmente nos queda agregar una pequeña configuración final referente al form
   "proseWrap": "always",
   "tabWidth": 2,
   "printWidth": 80,
-  "overrides": [{
-    "files":"*.md",
-    "options": {
-      "printWidth": 120
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "printWidth": 120
+      }
     }
-  }]
+  ]
 }
 ```
 
