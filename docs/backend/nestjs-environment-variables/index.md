@@ -9,7 +9,18 @@ Una de las prácticas más importantes en el desarrollo de software es la gesti�
 
 Cuando trabajamos con NestJS solemos almacenar los valores de estas variables de configuración (también llamadas variables de ambiente) en archivos de texto que usualmente llamamos archivos de ambiente, donde **"ambiente"** identifica los posibles entornos de trabajo del software, pueden ser _Producción_, _Stage_, _Load_, _Test/QA_, etc.
 
+**Contenido**
+
+- [Instalación de dependencias](#instalacion-dependencias)
+- [Cargar las variables de entorno](#config-loader)
+- [Validación de variables de entorno](#schema-validation)
+- [Configuración del serivicio](#configuracion-del-servicio)
+- [Cómo usar las variables de entorno](#usar-las-variables-de-entorno)
+- [Otras buenas prácticas](#buenas-practicas)
+
 ---
+
+## Instalación de dependencias {#instalacion-dependencias}
 
 La gestión de las variables de entorno la hacemos a través un módulo de NestJS llamado `ConfigModule` que instalamos con la siguiente línea.
 
@@ -19,7 +30,7 @@ npm install --save @nestjs/config
 
 Antes de crear la configuración vamos a necesitar un **loader** (una función que indica como se cargarán las variables, por ejemplo agrupadas o individualmente) y un **schema** de validación para asegurarnos siempre de contar con las variables de entorno completas al momento de iniciar el servidor.
 
-### Cargar las Variables de Entorno (Config Loader)
+## Cargar las variables de entorno (Config Loader) {#config-loader}
 
 En una carpeta de configuración podemos crear un archivo con nombre `config-loader.ts` y en este archivo exportamos una función que se encarga de retornar un objeto que mapea todos los campos del archivo `.env`. El código se presenta a continuación:
 
@@ -36,7 +47,7 @@ export const configLoader = () => {
 };
 ```
 
-### Validación de Variables de Entorno (Schema Validation)
+## Validación de variables de entorno (Schema Validation) {#schema-validation}
 
 Para validar las variables de entorno vamos a requerir un validador de objetos como `joi` que ya cuenta con integración directa con NestJS.
 
@@ -57,7 +68,7 @@ export const envSchema = Joi.object({
 });
 ```
 
-### Configuración del servicio
+## Configuración del servicio {#configuracion-del-servicio}
 
 Una vez instalado el `config module` y creados el `loader` y el `validator`, vamos a dirigirnos al archivo `app.module.ts` y en la sección de **imports** inyectamos el `config module` y su configuración como se muestra a continuación:
 
@@ -79,7 +90,7 @@ import { envSchema } from "./config/envSchema";
 export class AppModule {}
 ```
 
-### Cómo Usar las Variables de Entorno
+## Cómo usar las variables de entorno {#usar-las-variables-de-entorno}
 
 Ahora, dado que el **app.module** ha importado el `ConfigModule` podemos intentar acceder a valores de variables de entorno en la función `bootstrap` del archivo `main.ts` como se muestra en el siguiente fragmento de código, donde obtenemos los valores de `port` y el contenido del grupo `database`:
 
@@ -176,7 +187,7 @@ export class UsersService {
 
 ---
 
-### Otras Buenas Prácticas
+### Otras Buenas Prácticas {#buenas-practicas}
 
 #### Type Safety
 
@@ -220,6 +231,6 @@ export const configLoader = () => {
 
 ---
 
-Esto ha sido todo por hoy, espero que te resulte interesante el contenido de este artículo.
+Esto ha sido todo por hoy, espero que te haya resultado interesante el contenido de este artículo.
 
 Autor: Julio Echeverri
