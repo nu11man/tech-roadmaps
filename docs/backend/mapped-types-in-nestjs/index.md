@@ -93,3 +93,11 @@ export class ProfileNoPhotoDto extends OmitType(CreateProfileDto, [
   "avatar",
 ] as const) {}
 ```
+
+Los anteriores son los Mapped Types más utilizados aunque no los únicos disponibles, en la documentación oficial de NestJS puedes encontrar la [información sobre Mapped Types](https://docs.nestjs.com/techniques/validation#mapped-types) y te recomiendo darle una mirada.
+
+Espero que esta entrada te haya resultado útil, nos vemos en la siguiente.
+
+---
+
+Autor: Julio César Echeverri M.
