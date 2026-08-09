@@ -11,6 +11,10 @@ En el artículo anterior vimos como instalar y configurar TypeORM en nuestro pro
 
 - [Creación de la entidad](#creacion-de-entidades)
 - [Respository Pattern](#repository-pattern)
+- [Operación CREATE](#how-to-create)
+- [Operación UPDATE](#how-to-read)
+- [Operación DELETE](#how-to-delete)
+- [Cómo consultar datos](#how-to-read-data)
 
 ---
 
