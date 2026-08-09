@@ -16,6 +16,9 @@ En el artículo anterior vimos como instalar y configurar TypeORM en nuestro pro
 - [Operación UPDATE](#how-to-update)
 - [Operación DELETE](#how-to-delete)
 - [Cómo consultar datos](#how-to-read)
+  - [Obtener todos los registros de la tabla](#read-all)
+  - [Obtener un registro por un campo específico](#read-by)
+  - [Obtener registros que cumplan con condiciones](#read-by-condition)
 
 ---
 
@@ -88,7 +91,7 @@ export class User {
 
 ### Repository Pattern {#repository-pattern}
 
-Dado que TypeORM nos permite hacer el mapping entre los objetos y sus relaciones, también nos ofrece la posibilidad de trabajar con el patrón de diseño **Repository**, es decir que cada entidad cuenta con los métodos para realizar múltiples acciones comunes de cara a la base de datos. (Más información puede encontrarse la [documentación oficial de NestJS y TypeORM repository pattern](https://docs.nestjs.com/techniques/database#repository-pattern)).
+Dado que TypeORM nos permite hacer el mapping entre los objetos y sus relaciones, también nos ofrece la posibilidad de trabajar con el patrón de diseño **Repository**, es decir que cada entidad cuenta con los métodos para realizar múltiples acciones comunes de cara a la base de datos. Más información puede encontrarse la [documentación oficial de NestJS y TypeORM repository pattern](https://docs.nestjs.com/techniques/database#repository-pattern).
 
 El uso del Repository Pattern con TypeORM consiste realmente en crear una entidad (cómo lo hicimos anteriormente) e inyectarla en el servicio que hace uso de ella. Por ejemplo, dada entidad `User` que creamos recientemente, vamos a ir al servicio de usuarios `users.service.ts` y en el constructor inyectaremos un Repository instanciado especialmente para esta entidad. Veamos el siguiente código:
 
@@ -146,3 +149,81 @@ async create(body: CreateUserDto) {
 ```
 
 ### Operación UPDATE {#how-to-update}
+
+Para hacer la actualización de una entidad debemos recuperar el contenido actual de la entidad y luego hacer un `.merge()` del objeto existente y del objeto que contiene los cambios, para posteriormente guardar el nuevo objeto.
+
+Veamos un ejemplo de lo descrito:
+
+```typescript
+async updateUser(id: number, changes: UpdateUserDto) {
+  const user = await this.userRepository.findOne(id);
+  const updatedUser = await this.userRepository.merge(user, changes);
+  const savedUser = await this.userRepository.save(updatedUser);
+
+  return savedUser;
+}
+```
+
+### Operación DELETE {#how-to-delete}
+
+Hemos visto como guardar y cómo actualizar un registro de la tabla, eliminar un elemento también se puede considerar trivial ya que contamos con un método específico para ello:
+
+```typescript
+async deleteUser(id: number) {
+  await this.usersRepository.delete(id);
+  return { message: "User deleted" };
+}
+```
+
+### Cómo consultar datos {#how-to-read}
+
+Hasta este punto vimos como _almacenar_, _actualizar_ y _eliminar_ registros en las tablas de la base de datos. En esta sección vamos a ver como leer un registro de la base de datos utilizando el _repository_.
+
+#### Obtener todos los registros de la tabla {#read-all}
+
+Podemos obtener todos los registros de la tabla (con las implicaciones de performance que esto trae) haciendo uso del método `find()`. Veamos un ejemplo donde obtenemos todos los usuarios.
+
+```typescript
+async getAllUsers() {
+  const users = await this.usersRepository.find();
+  return users;
+}
+```
+
+#### Obtener un registro por un campo específico {#read-by}
+
+La mayoría de la veces queremos obtener el registro correspondiente a un ID (primary key) específica, por ejemplo, para obtener un usuario dado su ID:
+
+```typescript
+async getUserById(id: number) {
+  const user = await this.usersRepository.findOneBy({ id });
+
+  if (!user) {
+    throw new NotFoundExecption(`User with id ${id} not found`);
+  }
+  return user;
+}
+```
+
+#### Obtener registros que cumplan con condiciones {#read-by-conditions}
+
+En otras ocasiones deseamos traer una lista de registros que satisfacen una clausula, es posible lograr esto a través del atributo `where` en el objeto que se pasa como argumento del método.
+
+```typescript
+async getUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    return user;
+  }
+```
+
+Cómo hemos observado de los ejemplos anteriores, obtener los registros de la base de datos y operar con ellos como objetos de Javascript es la mágia de TypeORM (en general es la promesa de los ORMs). Puedes consultar [la documentación oficial de **TypeORM**](https://typeorm.io/docs/working-with-entity-manager/find-options) aquí para mayor información sobre las operaciones disponibles.
+
+**Nota**: Observa que en este artículo solo hemos querido introducir los métodos que podemos utilizar pero es importante que tus implementaciones sean más robustas que los ejemplos aquí presentados. Es decir, debería tener un manejo adecuado de excepciones, mayor validación de tipos, etc.
+
+---
+
+Espero que este artículo te haya resultado útil, nos vemos en el próximo para conversar un poco sobre las relaciones One-to-One con TypeORM.
+
+Autor: Julio César Echeverri M.
