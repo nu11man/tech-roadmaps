@@ -81,25 +81,68 @@ En la entidad User hemos usado el decorador `@OneToMany` para indicar que el atr
 
 ### Registrar las entidades en el módulo {#inyeccion-entidades}
 
-Ahora debemos registrar en el módulo de usuarios `users.module.ts` el módulo de posts.
+Ahora debemos registrar en el módulo de `Posts` la entidad `Post` que definimos recientemente.
 
 ```typescript
 import { Module } from "@nestjs/common";
-import { UsersController } from "./users.controller";
-import { UsersService } from "./users.service";
+import { PostsService } from "./posts.service";
+import { PostsController } from "./posts.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "./entities/user.entity";
-import { Profile } from "./entities/profile.entity";
+import { Post } from "./entities/post.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Profile, Posts])],
-  controllers: [UsersController],
-  providers: [UsersService],
+  imports: [TypeOrmModule.forFeature([Post])],
+  controllers: [PostsController],
+  providers: [PostsService],
+  exports: [PostsService],
 })
-export class UsersModule {}
+export class PostsModule {}
+```
+
+Si ahora ejecutamos el servidor, encontraremos la nueva tabla `Posts` en nuestra base de datos, debemos aclarar aquí que la relación a nivel de esquema unicamente la tiene registrada la entidad `Post`, es decir, no hay una referencia actualmente desde Users hacia Posts porque son los Posts los que apuntan al usuario y no al revés, _es la entidad más débil la que carga la relación_.
+
+No hay cambios muy relevantes respecto a las acciones que podemos realizar con estas entidades ahora que tenemos la relación _uno a muchos_, veamos a continuación.
+
+**Nota**: Antes de realizar las acciones debemos recordar que utilizamos el _Repository Pattern_, por lo que nuestro servicio de Posts y su constructor deberan tener la siguiente forma:
+
+```typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { Post } from './entities/post.entity';
+
+@Injectable()
+export class PostsService {
+  constructor(
+    @InjectRepository(Post)
+    private readonly postRepository: Repository<Post>
+  ) {}
+
+  ...
+
+}
 ```
 
 ### Acción de creación {#create}
+
+Dado que, a diferencia de las entidades más simples que creamos antes, la entidad `Post` ahora requiere una referencia a un usuario asociado con el post, debemos tener el cuidado de pasar esta referencia como se espera en la defición de la entidad.
+
+En este caso, la entidad espera un atributo `user` que recibe un objeto de tipo `User` entity, no necesariamente completo, pero como mínimo debe contener el ID de dicho usuario. El método `create` quedará entonces de la siguiente forma:
+
+```typescript
+async create(post: CreatePostDto) {
+  const newPost = await this.postRepository.save({
+    ...post,
+    user: { id: post.userId }
+  });
+  const createdPost = await this.findOne(newPost.id);
+  return createdPost;
+}
+```
+
+Aquí usamos además el método `findOne` que definiremos más adelante y que nos permitirá retornar el contenido del post creado y del usuario y perfil asociados a este nuevo post.
 
 ### Acción de actualización {#update}
 
