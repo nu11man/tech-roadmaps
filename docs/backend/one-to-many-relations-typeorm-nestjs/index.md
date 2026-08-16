@@ -195,6 +195,18 @@ async findAll() {
 
 ### Acción de eliminación {#delete}
 
+Podemos decir que la acción de borrado es la más sencilla de todas, en el sentido de que solo debemos obtener el ID del post que deseamos eliminar y pasarlo al método `remove` del Repository:
+
+```typescript
+async remove(id: number) {
+  await this.findOne(id);
+  await this.postRepository.delete(id);
+  return { message: `Post with id ${id} has been deleted` };
+}
+```
+
+Observa que aunque no es estrictamente necesario consultar el post, utilizamos el método `findOne()` par asegurarnos de que el post existe antes de intentar borrarlo. Es solo una medida de precaución y buenas prácticas.
+
 Espero que el contenido de esta entrada te haya resultado útil, nos vemos en el próximo post donde abordaremos el siguiente tipo de relación. La relación **Uno a Muchos**.
 
 ---
