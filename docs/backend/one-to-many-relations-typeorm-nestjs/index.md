@@ -142,11 +142,56 @@ async create(post: CreatePostDto) {
 }
 ```
 
-Aquí usamos además el método `findOne` que definiremos más adelante y que nos permitirá retornar el contenido del post creado y del usuario y perfil asociados a este nuevo post.
+Aquí usamos además el método `.findOne()` que definiremos más adelante y que nos permitirá retornar el contenido del post creado y del usuario y perfil asociados a este nuevo post.
 
 ### Acción de actualización {#update}
 
+Para realizar la actualización de un post, obtenemos el post original a través de su ID utilizando nuestro método personalizado `.findOne()`, posteriormente hacemos un `merge` entre el contenido actual y el nuevo. Finalmente hacemos un `.save()` con la nueva información.
+
+```typescript
+async update(id: number, updatePostDto: UpdatePostDto) {
+  const post = await this.findOne(id);
+  const updatedPost = this.postRepository.merge(post, updatePostDto);
+  const newPost = await this.postRepository.save(updatedPost);
+
+  return newPost;
+}
+```
+
 ### Acción de consulta {#read}
+
+En cuanto a la consulta de datos el mismo patrón se mantiene, vamos a crear un método personalizado `.findOne()` que puede ser privado o no y que además recibe como parámetro el ID del post que deseamos consultar. Internamente manejaremos las excepciones y lógica adicional de consulta que consideremos pertinente. La forma más básica de este método es la siguiente.
+
+```typescript
+async findOne(id: number) {
+  const post = await this.postRepository.findOne({
+    where: { id },
+    relations: {
+      user: true
+    }
+  });
+
+  if (!post) {
+    throw new NotFoundException(`Post with id ${id} not found`);
+  }
+  return post;
+}
+```
+
+Es importante observar que en este caso podemos decirle a TypeORM que al momento de hacer la consulta, el resultado incluya los campos de las relaciones, por ejemplo `user`.
+
+De igual forma, si deseamos obtener todos los registros de la tabla, podemos definir el siguiente método `findAll()`:
+
+```typescript
+async findAll() {
+  const posts = await this.postRepository.find({
+    relations: {
+      user: true
+    }
+  });
+  return posts;
+}
+```
 
 ### Acción de eliminación {#delete}
 
