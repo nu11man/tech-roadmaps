@@ -11,6 +11,7 @@ Anteriormente vimos algunos artículos sobre configuración de TypeORM y creaci�
 
 - [Definición de las entidades](#definicion-de-entidades)
 - [Registrar las Entidades en el Módulo](#inyeccion-entidades)
+- [Repository Pattern](#repository-pattern)
 - [Acción de Creación](#create)
 - [Acción de Actualización](#update)
 - [Acción de Consulta](#read)
@@ -101,9 +102,9 @@ export class PostsModule {}
 
 Si ahora ejecutamos el servidor, encontraremos la nueva tabla `Posts` en nuestra base de datos, debemos aclarar aquí que la relación a nivel de esquema unicamente la tiene registrada la entidad `Post`, es decir, no hay una referencia actualmente desde Users hacia Posts porque son los Posts los que apuntan al usuario y no al revés, _es la entidad más débil la que carga la relación_.
 
-No hay cambios muy relevantes respecto a las acciones que podemos realizar con estas entidades ahora que tenemos la relación _uno a muchos_, veamos a continuación.
+### Repository Pattern {#repository-pattern}
 
-**Nota**: Antes de realizar las acciones debemos recordar que utilizamos el _Repository Pattern_, por lo que nuestro servicio de Posts y su constructor deberan tener la siguiente forma:
+Antes de realizar las acciones debemos recordar que utilizamos el _Repository Pattern_, por lo que nuestro servicio de Posts y su constructor deberan tener la siguiente forma:
 
 ```typescript
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -124,6 +125,8 @@ export class PostsService {
 
 }
 ```
+
+Por otra parte, no hay cambios muy relevantes respecto a las acciones que podemos realizar con estas entidades ahora que tenemos la relación _uno a muchos_, veamos a continuación.
 
 ### Acción de creación {#create}
 
