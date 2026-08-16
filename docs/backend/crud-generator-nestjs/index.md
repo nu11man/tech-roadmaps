@@ -1,7 +1,6 @@
-/---
+---
 layout: default
 title: Resource CRUD Generator de NestJS
-
 ---
 
 # Resource CRUD Generator de NestJS
