@@ -1,7 +1,6 @@
-one---
+---
 layout: default
 title: Relaciones Muchos a Muchos en TypeORM y NestJS
-
 ---
 
 # Relaciones Muchos a Muchos en TypeORM y NestJS
