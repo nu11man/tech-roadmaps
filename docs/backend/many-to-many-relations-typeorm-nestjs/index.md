@@ -1,13 +1,12 @@
----
+one---
 layout: default
 title: Relaciones Muchos a Muchos en TypeORM y NestJS
+
 ---
 
 # Relaciones Muchos a Muchos en TypeORM y NestJS
 
-Hasta este punto hemos cubierto varios tópicos relacionados con gestión de base de datos, como la configuración de TypeORM en NestJS o la creación de entidades básicas con este mismo ORM.
-
-En esta entrada vamos a abordar el primer tipo de relación entre entidades. **La relación Uno a Uno**.
+Si hemos llegado a este punto es porque ya vimos como configurar TypeORM en NestJS, creamos entidades, aprendimos a gestionar relaciones uno a uno, uno a muchos y finalmente, en esta entrada vamos a abordar el tipo final de relaciones, la relación **muchos a muchos**.
 
 #### Contenido
 
@@ -21,6 +20,16 @@ En esta entrada vamos a abordar el primer tipo de relación entre entidades. **L
 ---
 
 ### Definición de las entidades {#definicion-de-entidades}
+
+De las entradas anteriores ya habíamos creado las entidades _User_, _Profile_ y _Post_. Esas entidades presentaban las siguientes relaciones:
+
+- _User_ y _Profile_: Son entidades con relación _one to one_ porque un perfil solo puede estar asociado a un usuario y a su vez un usuario solo puede tener asociado un perfil.
+
+- _User_ y _Post_: Tienen una relación _one to many_ porque un usuario puede tener varios post asociados, pero un post solo puede tener asignado un usuario.
+
+Ahora, vamos a crear la entidad _Category_ y vamos a relacionarla con la entidad _Post_. En este caso la relación que obtendremos será _many to many_ ya que un post puede tener asociadas varias categorías y una categoría puede estar asignada a varios posts.
+
+Definamos la entidad caegoría con un atributo _name_ y los campos usuales de _primary key_, _create date_ y _update date_.
 
 ### Registrar las entidades en el módulo {#inyeccion-entidades}
 
