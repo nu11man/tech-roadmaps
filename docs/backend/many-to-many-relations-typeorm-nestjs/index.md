@@ -28,7 +28,11 @@ De las entradas anteriores ya habíamos creado las entidades _User_, _Profile_ y
 
 Ahora, vamos a crear la entidad _Category_ y vamos a relacionarla con la entidad _Post_. En este caso la relación que obtendremos será _many to many_ ya que un post puede tener asociadas varias categorías y una categoría puede estar asignada a varios posts.
 
-Definamos la entidad caegoría con un atributo _name_ y los campos usuales de _primary key_, _create date_ y _update date_.
+Definamos la entidad _Category_ con un atributo _name_ y los campos usuales de _primary key_, _create date_ y _update date_. Sin embargo, ahora vamos a ver el uso de nuevos decoradores:
+
+```typescript
+
+```
 
 ### Registrar las entidades en el módulo {#inyeccion-entidades}
 
