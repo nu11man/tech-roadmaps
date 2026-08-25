@@ -51,6 +51,31 @@ Finalmente para modificar parámetros de funcionamiento de la base de datos (inc
 
 La base de datos funciona como cualquier otro servicio de Linux, puedes iniciarla, detenerla y verificar su estado actual.
 
+Para gestionar los servicios usamos el comando `systemctl` que tiene la siguiente sintaxis:
+
+```bash
+sudo systemctl <action> <service>
+```
+Donde `service` corresponde al nombre del servicio con el que estamos trabajando (en este caso PostgreSQL) y `action` corresponde a la acción que queremos ejecutar sobre el servicio, esto es, iniciarlo, detenerlo, monitorearlo.
+
+Para conocer el estado actual del servicio ejecutamos la línea:
+
+```bash
+sudo systemctl status postgresql
+```
+
+Para iniciar el servicio de la base de datos ejecutamos la línea:
+
+```bash
+sudo systemctl start postgresql
+```
+
+Para detener el servicio de la base de datos ejecutamos la línea:
+
+```bash
+sudo systemctl stop postgresql
+```
+
 
 ## Interacción con la base de datos en la terminal
 
