@@ -11,15 +11,17 @@ En esta oportunidad veremos como instalar, configurar y poner a punto de operaci
 
 #### Contenido
 
-- [Instalación de PostgreSQL]()
-- [Configuración de PostgreSQL]()
-- [Gestión del Servicio de Base de Datos]()
-- [Instalación de pgAdmin]()
-- [Gestión de Usuarios desde la Terminal]()
+- [Instalación de PostgreSQL](#instalacion-de-postgresql)
+- [Configuración de PostgreSQL](#configuracion-postgresql)
+- [Gestión del Servicio de Base de Datos](#gestion-servicio-linux)
+- [Instalación de pgAdmin 4](#instalacion-de-pgadmin)
+- [Gestión de base de datos desde la terminal](#gestion-desde-terminal)
+    - [Crear un nuevo usuario](#creacion-de-usuarios)
+    - [Asignar o actualizar contraseña](#update-password)
 
 ---
 
-### Instalación de PostgreSQL
+### Instalación de PostgreSQL {#instalacion-de-postgresql}
 
 En primer lugar debemos actualizar el índice de paquetes del sistema operativo.
 
@@ -45,7 +47,7 @@ Ahora ejecutamos la siguiente consulta para obtener la versión de PostgreSQL in
 SELECT version();
 ```
 
-### Configuración de PostgreSQL
+### Configuración de PostgreSQL {#configuracion-postgresql}
 
 Por defecto, el motor de PostgreSQL atiende las conexiones a través del puerto `5432`. Sin embargo, puedes obtener información sobre el motor de base de datos con el siguiente comando:
 
@@ -67,7 +69,7 @@ Finalmente para modificar parámetros de funcionamiento de la base de datos (inc
 /etc/postgresql/<version>/main/postgresql.conf
 ```
 
-### Gestión del Servicio de Base de Datos
+### Gestión del servicio de base de datos {#gestion-servicio-linux}
 
 La base de datos funciona como cualquier otro servicio de Linux, puedes iniciarla, detenerla y verificar su estado actual.
 
@@ -96,7 +98,7 @@ Para detener el servicio de la base de datos ejecutamos la línea:
 sudo systemctl stop postgresql
 ```
 
-### Instalación y conexión de pgAdmin
+### Instalación de pgAdmin 4 {#instalacion-de-pgadmin}
 
 Un cliente de escritorio o web es de vital importancia para gestionar una base de datos. En este caso nuestra recomendación en pgAdmin ya que es una herramienta de los mismos desarrolladores de PostgreSQL, aunque existen alternativas.
 
@@ -138,7 +140,7 @@ sudo /usr/pgadmin4/bin/setup-web.sh
 ```
 
 
-### Gestión de Usuarios desde la Terminal
+### Gestión de base de datos desde la terminal {#gestion-desde-terminal}
 
 Para realizar la gestión más básica de usuarios podemos valernos de la terminal de comandos, esto requiere iniciar la sesión del usuario `postgres` creado automáticamente tras la instalación y ejecutar la herramienta `psql`.
 
@@ -146,7 +148,32 @@ Para realizar la gestión más básica de usuarios podemos valernos de la termin
 sudo -u postgres psql
 ```
 
-#### Actualiza la contraseña de un usuario
+Por otra parte, un comando más avanzado puede ser el siguiente:
+
+```bash
+psql -U appuser -h localhost -W -d mydatabase
+```
+
+La descripción de cada parámetro es la siguiente:
+
+- `psql`: Inicia el cliente de línea de comandos de postgresql.
+- `-U appuser`: Se conecta como el usuario/rol `appuser`.
+- `-h localhost`: Indica el host al que nos estamos conectando.
+- `-W`: Solicita la contraseña del usuario.
+- `-d mydatabase`: Indica que debemos conectarnos a la base de datos `mydatabase`.
+
+
+#### Creación de nuevos usuarios {#creacion-de-usuarios}
+
+Una de las mayores recomendaciones es mantener el mínimo nivel de privilegios posible, esto es muy importante en cualquier escenario y con postgreSQL podemos lograrlo creando usuarios y gestionando permisos/roles.
+
+Creamos un nuevo usuario y asignamos una contraseña con la siguiente instrucción en `psql`.
+
+```bash
+CREATE USER appuser WITH PASSWORD 'my_secure_password';
+```
+
+#### Asignar o actualizar contraseñas {#update-password}
 
 Una vez nos encontramos en la shell de Postgres vamos ejecutar el comando `\password` seguido del nombre del usuario al que queremos actualizar o agregar una nueva contraseña, este caso el usuario administrador `postgres`.
 
@@ -164,13 +191,9 @@ ALTER ROLE postgres WITH PASSWORD 'your_new_password';
 
 Para salir de la shell `psql` y regresar a nuestro usuario normal del sistema operativo usamos el comando `\q`.
 
-#### Creación de nuevos usuarios
+Esto ha sido todo por ahora, en próximos artículos veremos configuraciones relacionadas con la seguridad de nuestras bases de datos.
 
-Una de las mayores recomendaciones es mantener el mínimo nivel de privilegios posible, esto es muy importante en cualquier escenario y con postgreSQL podemos lograrlo creando usuarios y gestionando permisos/roles.
+---
 
-Creamos un nuevo usuario y asignamos una contraseña con la siguiente instrucción en `psql`.
-
-```bash
-CREATE USER appuser WITH PASSWORD 'my_secure_password';
-```
+Autor: Julio César Echeverri M.
 
