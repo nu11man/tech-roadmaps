@@ -10,6 +10,8 @@ Si hemos llegado a este punto es porque ya vimos como configurar TypeORM en Nest
 #### Contenido
 
 - [Definición de las entidades](#definicion-de-entidades)
+- [Actualización de DTO](#actualizar-dtos)
+- [Actualización de servicios](#actualizar-servicios)
 - [Registrar las Entidades en el Módulo](#inyeccion-entidades)
 - [Acción de Creación](#create)
 - [Acción de Actualización](#update)
@@ -28,11 +30,88 @@ De las entradas anteriores ya habíamos creado las entidades _User_, _Profile_ y
 
 Ahora, vamos a crear la entidad _Category_ y vamos a relacionarla con la entidad _Post_. En este caso la relación que obtendremos será _many to many_ ya que un post puede tener asociadas varias categorías y una categoría puede estar asignada a varios posts.
 
-Definamos la entidad _Category_ con un atributo _name_ y los campos usuales de _primary key_, _create date_ y _update date_. Sin embargo, ahora vamos a ver el uso de nuevos decoradores:
+Definamos la entidad _Category_ con un atributo _name_ y los campos usuales de _primary key_, _create date_ y _update date_. Sin embargo, ahora vamos a ver el uso de un nuevo decorador:
 
 ```typescript
+import { Entity, ManyToMany } from 'typeorm';
+import { Post } from './post.entity';
 
+@Entity({ name: 'categories' })
+export class Category {
+
+  ...
+
+  @ManyToMany(() => Post, (post) => post.categories)
+  posts!: Post[];
+}
 ```
+
+En esta definición de la entidad `Category` usamos el nuevo decorador `@ManyToMany()` que funciona en dos sentidos dependiendo de la entidad en la que se use. En este caso tenemos una referencia simple, es decir, indicamos que el campo `posts` apunta a una colección de Posts.
+
+Ahora debemos actualizar la entidad `Post` que utilizará además del decorador `@ManyToMany()` un decorador adicional que parametriza la tabla que relaciona los múltiples posts con las múltiples categorias, a veces llamada "Tabla ternaria" o "Tabla intermedia".
+
+```typescript
+import { ManyToMany, JoinTable } from 'typeorm';
+import { Category } from './category.entity';
+
+@Entity({ name: 'posts' })
+export class Post {
+  ...
+
+  @ManyToMany(() => Category, (category) => category.posts)
+  @JoinTable({
+    name: 'post_categories',
+    joinColumn: { name: 'post_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' }
+  })
+  categories!: Category[];
+}
+```
+
+Observa que en esta entidad usamos lo siguiente:
+
+- `@ManyToMany()`: Indica que en este campo referenciamos una lista de entidades tipo `@Category`.
+- `@JoinTable()`: Con este decorador parametrizamos la tabla intermedia que relaciona los múltiples Posts con las múltiples Categories. Los tres campos principales son: El nombre de la tabla intermedia, la columna que funciona como llave en esta entidad (`joinColumn`) y la columna que funciona como llave en la otra entidad de esta relación (`inverseJoinColumn`).
+
+Observa que en ambas entidades tenemos dos arrays.
+
+### Actualización de DTO {#actualizar-dtos}
+
+Es importante tener presente que en los DTOs no vamos a indicar una lista de objetos sino una lista de identificadores (`id`) tanto en category como en post.
+
+Para el DTO de creación de Posts tenemos entonces:
+
+```typescript
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
+
+export class CreatePostDto {
+
+  ...
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  categoryIds?: number[];
+}
+```
+
+Para el DTO de creación de Categories tenemos:
+
+```typescript
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
+
+export class CreateCategoryDto {
+
+  ...
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  postsIds?: number[];
+}
+```
+
+### Actualización de servicios {#actualizar-servicios}
 
 ### Registrar las entidades en el módulo {#inyeccion-entidades}
 
