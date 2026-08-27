@@ -121,6 +121,24 @@ export class CreateCategoryDto {
 
 ### Acción de consulta {#read}
 
+Observemos que aunque la inyección del respository pattern se mantiene como en las relaciones estudiadas anteriormente, aquí debemos indicar a TypeORM si deseamos que nos resuelva la lista de componentes que referenciamos (en este caso categorias), en caso de ser así, tendríamos una función como se muestra a continuación:
+
+```typescript
+async findOne(id: number) {
+    const post = await this.postRepository.findOne({
+      where: { id },
+      relations: {
+        user: true,
+        categories: true
+      }
+    });
+    if (!post) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+    return post;
+  }
+```
+
 ### Acción de eliminación {#delete}
 
 Espero que el contenido de esta entrada te haya resultado útil, nos vemos en el próximo post donde abordaremos el siguiente tipo de relación. La relación **Uno a Muchos**.
