@@ -11,8 +11,8 @@ Si hemos llegado a este punto es porque ya vimos como configurar TypeORM en Nest
 
 - [Definición de las entidades](#definicion-de-entidades)
 - [Actualización de DTO](#actualizar-dtos)
-- [Actualización de servicios](#actualizar-servicios)
 - [Registrar las Entidades en el Módulo](#inyeccion-entidades)
+- [Actualización de servicios](#actualizar-servicios)
 - [Acción de Creación](#create)
 - [Acción de Actualización](#update)
 - [Acción de Consulta](#read)
@@ -111,9 +111,50 @@ export class CreateCategoryDto {
 }
 ```
 
+### Registrar las entidades en el módulo {#inyeccion-entidades}
+
+Como hemos agregado dentro del módulo de `Posts` la entidad `Category`, es importante ajustar la definición de nuestro módulo para que `Category` sea registrada en el contenedor de dependencias:
+
+```typescript
+import { Module } from "@nestjs/common";
+import { PostsService } from "./services/posts.service";
+import { PostsController } from "./controllers/posts.controller";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Post } from "./entities/post.entity";
+import { CategoriesController } from "./controllers/categories.controller";
+import { CategoriesService } from "./services/categories.service";
+import { Category } from "./entities/category.entity";
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Post, Category])],
+  controllers: [PostsController, CategoriesController],
+  providers: [PostsService, CategoriesService],
+  exports: [PostsService, CategoriesService],
+})
+export class PostsModule {}
+```
+
+En el código anterior también puedes ver como hemos registrado las clases de `Controller` y `Service` para la entidad Categoría.
+Adicionalmente, observemos que el archivo `app.module.ts` se mantiene igual, ya que `Categories` está incluida dentro del módulo `Post` y no es algo aislado que debamos registrar manualmente.
+
 ### Actualización de servicios {#actualizar-servicios}
 
-### Registrar las entidades en el módulo {#inyeccion-entidades}
+Ahora debemos actualizar el servicio de categorías con nuestro Repository Pattern como hemos hecho en las relaciones vistas en artículos anteriores.
+
+```typescript
+@Injectable()
+export class CategoriesService {
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>
+  ) {}
+
+  ...
+
+}
+```
+
+Tengamos en cuenta que no hay que realizar ninguna inyección (inicialmente) en el servicio de Posts, ya que las operaciones de relación se realizan a nivel del motor de base de datos y TypeORM.
 
 ### Acción de creación {#create}
 
@@ -139,8 +180,22 @@ async create(post: CreatePostDto) {
 Ahora si deseamos realizar la actualización de los IDs en el array que mantiene la relación, podemos abordarlo de la siguiente manera:
 
 ```typescript
-
+async update(id: number, updatePostDto: UpdatePostDto) {
+  const post = await this.findOne(id);
+  const updatedPost = {
+    ...post,
+    ...updatePostDto,
+    user: updatePostDto.userId ? { id: updatePostDto.userId } : post.user,
+    categories: updatePostDto.categoryIds
+      ? updatePostDto.categoryIds.map((categoryId) => ({ id: categoryId }))
+      : post.categories
+  };
+  await this.postRepository.save(updatedPost);
+  return this.findOne(id);
+}
 ```
+
+Por simplicidad hemos optado por usar el `spread operator` teniendo cuidado de mapear correctamente los nombres de `user` y `categories`.
 
 ### Acción de consulta {#read}
 
@@ -164,7 +219,17 @@ async findOne(id: number) {
 
 ### Acción de eliminación {#delete}
 
-Espero que el contenido de esta entrada te haya resultado útil, nos vemos en el próximo post donde abordaremos el siguiente tipo de relación. La relación **Uno a Muchos**.
+Para eliminar un registro podemos valernos de la estrategia siguiente (si no requerimos una eliminación en cascada):
+
+```typescript
+async remove(id: number) {
+  await this.findOne(id);
+  await this.postRepository.delete(id);
+  return { message: `Post with id ${id} has been deleted` };
+}
+```
+
+Espero que el contenido de esta entrada te haya resultado útil, nos vemos en el próximo post donde abordaremos el asunto de las migraciones con TypeORM, para aquellas ocasiones donde modificamos el modelo de datos pero ya teníamos información preexistente en la base de datos que debemos ajustar masivamente y de forma segura.
 
 ---
 
