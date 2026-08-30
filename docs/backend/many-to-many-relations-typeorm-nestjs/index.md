@@ -117,7 +117,30 @@ export class CreateCategoryDto {
 
 ### Acción de creación {#create}
 
+Para crear una nueva entidad en la base de datos debemos tener presente el mapeo de los IDs que relacionan la entidad actual con la entidad de la otra tabla. Por ejemplo, para crear un nuevo Posts:
+
+```typescript
+async create(post: CreatePostDto) {
+
+  const newPost = await this.postRepository.save({
+    ...post,
+    user: { id: post.userId },
+    categories:
+      post.categoryIds?.map((categoryId) => ({ id: categoryId })) || []
+  });
+
+  const createdPost = await this.findOne(newPost.id);
+  return createdPost;
+}
+```
+
 ### Acción de actualización {#update}
+
+Ahora si deseamos realizar la actualización de los IDs en el array que mantiene la relación, podemos abordarlo de la siguiente manera:
+
+```typescript
+
+```
 
 ### Acción de consulta {#read}
 
