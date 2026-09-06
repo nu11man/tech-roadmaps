@@ -184,4 +184,4 @@ async function bootstrap() {
 bootstrap();
 ```
 
-Si ahora vamos a nuestro cliente HTTP y enviamos una petición al endpoint `users` sin en contenido adecuado obtendremos un error, por otro lado, si enviamos una request cuyo contenido cumpla con las especificaciones descritas en el DTO, la ejecución se realizará exitosamente.
+Si ahora vamos a nuestro cliente HTTP y enviamos una petición al endpoint `users` sin el contenido adecuado, obtendremos un error y, por otro lado, si enviamos una request cuyo contenido cumpla con las especificaciones descritas en el DTO, la ejecución se realizará exitosamente.
