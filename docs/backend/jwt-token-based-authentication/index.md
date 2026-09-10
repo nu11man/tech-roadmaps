@@ -23,6 +23,20 @@ Para resolver estos dos aspectos, vamos a ver como podemos utilizar la especific
 
 ### Instalación de dependencias {#instalacion-de-dependencias}
 
+Lo primero que debemos hacer es instalar las dependencias para trabajar con JWT, para ello ejecutamos las siguientes líneas.
+
+```bash
+npm install --save @nestjs/jwt passport-jwt
+npm install --save-dev @types/passport-jwt
+```
+
+O si usamos `yarn`:
+
+```bash
+yarn add @nestjs/jwt passport-jwt
+yarn add --dev @types/passport-jwt
+```
+
 ### Generación de tokens JWT {#generacion-de-tokens-jwt}
 
 ### Creación de JWT Strategy {#jwt-strategy}
