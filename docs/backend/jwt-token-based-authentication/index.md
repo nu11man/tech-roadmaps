@@ -80,8 +80,6 @@ El resultado de la línea anterior será algo como esto:
 6640642c7023c4241a41780989b27a2ab0c1373bc23b7bfc8116c644bedd7bc1d710a19d916b78743ae888c9d001cbe0c89a244dd05f91dd7bed155c9b14ba18
 ```
 
-### Creación de JWT Strategy {#jwt-strategy}
-
 Ahora para crear el token vamos a definir el método `generateToken` en el servicio `AuthService`. Allí aplicaremos los siguientes cambios:
 
 ```typescript
@@ -148,6 +146,8 @@ Observa que ahora la enviar una petición con email y password correctos, la res
 }
 ```
 
+### Creación de JWT Strategy {#jwt-strategy}
+
 ### Protección de endpoints {#proteccion-de-endpoints}
 
-Ya tenemos un endpoint de `/login` que le entrega al cliente un access token cuando la autentición se realizó correctamente. Ahora vamos a ajustar el proyecto para proteger algunos endpoints de interés.
+Ya tenemos un endpoint de `/login` que le entrega al cliente un access token cuando la autentición se realizó correctamente y una _strategy_ de PassportJS que realiza la validación de tokens JWT que se envían en el header de una petición. Ahora vamos a ajustar el proyecto para proteger algunos endpoints de interés.
