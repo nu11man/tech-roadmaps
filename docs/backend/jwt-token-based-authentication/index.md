@@ -18,6 +18,7 @@ Para resolver estos dos aspectos, vamos a ver como podemos utilizar la especific
 - [Generación de tokens JWT](#generacion-de-tokens-jwt)
 - [Creación de JWT Strategy](#jwt-strategy)
 - [Protección de endpoints](#proteccion-de-endpoints)
+- [Acceder al contenido de JWT](#acceder-contenido-jwt)
 
 ---
 
@@ -130,11 +131,11 @@ Observa que ahora la enviar una petición con email y password correctos, la res
 {
   "user": {
     "id": 6,
-    "email": "gorditos-byd@outlook.com",
+    "email": "example.user@outlook.com",
     "profile": {
       "id": 6,
-      "name": "Julio César",
-      "lastName": "Echeverri Marulanda",
+      "name": "John",
+      "lastName": "Doe",
       "avatarUrl": "https://myphoto.com/julio.jpg",
       "createdAt": "2026-09-10T04:58:22.538Z",
       "updatedAt": "2026-09-10T04:58:22.538Z"
@@ -148,6 +149,154 @@ Observa que ahora la enviar una petición con email y password correctos, la res
 
 ### Creación de JWT Strategy {#jwt-strategy}
 
+Para validar la autenticidad o integridad de un jwt token que viene en el header de una petición a uno de nuestros endpoints, vamos a implementar una Passport Strategy de JWT. Para ello vamos a crear una archivo de nombre `jwt.strategy.ts` en nuestro directorio de estrategias `src/auth/strategies/`.
+
+```typescript
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { PassportStrategy } from "@nestjs/passport";
+import { Injectable } from "@nestjs/common";
+import { AuthService } from "../auth.service";
+import { ConfigService } from "@nestjs/config";
+import { EnvConfig } from "@src/config/environment/env.model";
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
+  constructor(
+    configService: ConfigService<EnvConfig>,
+    private readonly authService: AuthService,
+  ) {
+    const jwtSecret = configService.get("jwtSecret", { infer: true });
+
+    if (!jwtSecret) {
+      throw new Error("JWT secret is not configured");
+    }
+
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: jwtSecret,
+    });
+  }
+
+  validate(payload: { sub: string }) {
+    return { userId: payload.sub };
+  }
+}
+```
+
+Observa que en esta estrategia obtenemos nuevamente el secreto con el que se firman los tokens JWT al momento de generarlos, pero en este caso se usa para validarlos. También tenemos un método `validate` que se ocupa de obtener el contenido de la carga útil del JWT. En este método también podríamos realizar una consulta a la base de datos para retornar más información sobre el usuario y no solo la que está presente en el token.
+
+Un ejemplo de un método `validate` alternativo se muestra en el siguiente código:
+
+```typescript
+async validate(payload: { sub: string }) {
+  const user = await this.authService.validateUserById(payload.sub);
+  if (!user) {
+    throw new UnauthorizedException('Unauthorized');
+  }
+  return user;
+}
+```
+
+Como conclusión, tengamos en cuenta que el valor retornado por el método `validate` se agrega al objeto request en el atributo `user` para que el manejador o los servicios que usamos en el controller tengan acceso directo a la información validada.
+
+Finalmente no podemos olvidar que como hemos creado una nueva estrategia, debemos ajustar nuestro módulo `AuthModule` con este nuevo provider:
+
+```typescript
+import { JwtStrategy } from './strategies/jwt.strategy';
+
+@Module({
+  imports: [...],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [AuthController]
+})
+```
+
 ### Protección de endpoints {#proteccion-de-endpoints}
 
-Ya tenemos un endpoint de `/login` que le entrega al cliente un access token cuando la autentición se realizó correctamente y una _strategy_ de PassportJS que realiza la validación de tokens JWT que se envían en el header de una petición. Ahora vamos a ajustar el proyecto para proteger algunos endpoints de interés.
+Ya tenemos un endpoint de `/login` que le entrega al cliente un _access token_ cuando la autentición se realizó correctamente y una _strategy_ de PassportJS que realiza la validación de tokens JWT que se envían en el header de una petición. Ahora vamos a ajustar el proyecto para proteger algunos endpoints de interés.
+
+Cuando llega el momento de proteger una ruta específica, se puede hace por endpoint o por controller. Proteger un endpoint específico se ve así:
+
+```typescript
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly postsService: PostsService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  create(@Body() createPostDto: CreatePostDto) {
+    return this.postsService.create(createPostDto);
+  }
+  ...
+}
+```
+
+Mientras que proteger todas las rutas de un _Controller_ se ve así:
+
+```typescript
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@UseGuards(AuthGuard('jwt'))
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly postsService: PostsService) {}
+  ...
+}
+```
+
+Observa como usamos el decorador `@UseGuards` y la función `AuthGuard` de Passport a la que le pasamos el nombre de la _Strategy_ que implementamos para validar los tokens JWT.
+
+### Acceder al contenido de JWT {#acceder-contenido-jwt}
+
+Hasta este punto validamos la autenticidad de los JSON Web Tokens que el cliente nos envía, pero en algunos casos es probable que necesitemos acceder al contenido del Token dentro de nuestros controladores o servicios.
+
+En primer lugar viene bien crear un tipo de dato que nos indique el contenido (payload) del JSON Web Token. El archivo `auth/models/payload.model.ts` podría contener lo siguiente:
+
+```typescript
+export interface Payload {
+  sub: number;
+}
+```
+
+El método `validate` de la estrategía `JwtStrategy` podría directamente retornar el payload.
+
+```typescript
+validate(payload: Payload) {
+  return payload;
+}
+```
+
+Finalmente, en el controlador podríamos acceder al contenido del payload (almacenado automáticamente) como sigue:
+
+```typescript
+import { AuthGuard } from '@nestjs/passport';
+import type { Request } from 'express';
+import { Payload } from '@src/auth/models/payload.model';
+
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly postsService: PostsService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  create(@Body() createPostDto: CreatePostDto, @Req() req: Request) {
+    const user = req.user as Payload;
+    const userId = user.sub;
+    return this.postsService.create(createPostDto, userId);
+  }
+  ...
+}
+```
+
+En el ejemplo anterior sacamos el userId del DTO de creación para extraerlo del JSON Web Token y que el cliente no tenga que enviarlo explícitamente en la request, por lo tanto debemos extraerlo del JWT y pasarlo como un prámetro adicional en el servicio.
+
+Esto ha sido todo por hoy, en el próximo artículo vamos a abordar la generación automática de documentación con `Swagger`, no te lo pierdas.
+
+---
+
+Autor: Julio César Echeverri
