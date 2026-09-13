@@ -14,8 +14,8 @@ Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncompli
 - [Instalación del firewall](#instalacion-del-firewall)
 - [Gestionar el servicio de firewall](#gestion-de-servicios)
 - [Conocer el estado del firewall](#estado-de-firewall)
-- [Habilitar, deshabilitar y reiniciar el firewall](#)
-- [Perfiles de aplicaciones](#)
+- [Habilitar, deshabilitar y reiniciar el firewall](#gestion-de-firewall)
+- [Perfiles de aplicaciones](#perfiles-aplicacion-firewall)
 - [Reglas de tráfico](#)
   - [Habilitar un puerto específico](#)
   - [Permitir conexiones a un puerto](#)
@@ -97,9 +97,69 @@ sudo systemctl disable ufw
 
 ### Conocer el estado del firewall {#estado-de-firewall}
 
-### Habilitar, deshabilitar y reiniciar el firewall {#}
+Que el servicio se esté ejecutando no quiere decir que el firewall esté habilitado (que esté bloqueando activamente conexiones), por defecto el firewall no está activo, para evitar que te quedes fuera de tu servidor. Para conocer el estado del firewall podemos ejecutar la siguiente instrucción:
 
-### Perfiles de aplicaciones {#}
+```bash
+sudo ufw status [verbose]
+```
+
+Cuando se utiliza la opción `verbose` nos mostrará información más detallada, como el nivel de logging actual o las políticas por defecto.
+
+### Habilitar, deshabilitar y reiniciar el firewall {#gestion-de-firewall}
+
+Al igual que con el servicio, el estado del firewall también puede ser gestionado, podemos habilitar, reiniciar o detener las actividades de cortafuegos.
+
+Para activar el cortafuegos y que además se inicie con el sistema operativo, ejecutamos la instrucción:
+
+```bash
+sudo ufw enable
+```
+
+Para desactivar el cortafuegos y que además no se inicie con el sistema operativo:
+
+```bash
+sudo ufw disable
+```
+
+Por otra parte, cuando realizamos algunas operaciones, se requiere reiniciar o "recargar" el firewall, para ello podemos ejecutar el siguiente comando:
+
+```bash
+sudo ufw reload
+```
+
+### Perfiles de aplicaciones {#perfiles-aplicacion-firewall}
+
+En nuestro sistema pueden haber multitud de aplicaciones que aceptan conexiones para brindar un flujo de datos, podemos mejorar la gestión del cortafuegos a través del uso de los llamados _perfiles de aplicación_, que son archivos de texto que describen reglas específicas para un aplicación. Muchas aplicaciones traen sus perfiles por defecto, por ejemplo, los servidores web.
+
+Para listar los perfiles de aplicación disponibles en nuestros sistema podemos usar el comando:
+
+```bash
+sudo ufw app list
+```
+
+Para obtener información detallada de uno de los perfiles podemos ejecutar:
+
+```bash
+sudo ufw app info NombrePerfil
+```
+
+Si el nombre del perfil contiene espacios debemos usar comillas, por ejemplo:
+
+```bash
+sudo ufw app info "Nombre Perfil"
+```
+
+Para habilitar (activar) un perfil de aplicación tenemos el siguiente comando:
+
+```bash
+sudo ufw allow NombrePerfil
+```
+
+Mientras que para deshabilitar un perfil tenemos:
+
+```bash
+sudo ufw delete allow NombrePerfil
+```
 
 ### Reglas de tráfico {#}
 
