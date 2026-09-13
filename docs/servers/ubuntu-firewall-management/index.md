@@ -16,6 +16,9 @@ Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncompli
 - [Conocer el estado del firewall](#estado-de-firewall)
 - [Habilitar, deshabilitar y reiniciar el firewall](#gestion-de-firewall)
 - [Perfiles de aplicaciones](#perfiles-aplicacion-firewall)
+  - [Información de los perfiles](#informacion-de-perfiles)
+  - [Habilitar y deshabilitar perfiles](#habilitar-deshabilitar-perfiles)
+  - [Crear y actualizar perfiles](#crear-actualizar-perfiles)
 - [Reglas de tráfico](#)
   - [Habilitar un puerto específico](#)
   - [Permitir conexiones a un puerto](#)
@@ -131,6 +134,8 @@ sudo ufw reload
 
 En nuestro sistema pueden haber multitud de aplicaciones que aceptan conexiones para brindar un flujo de datos, podemos mejorar la gestión del cortafuegos a través del uso de los llamados _perfiles de aplicación_, que son archivos de texto que describen reglas específicas para un aplicación. Muchas aplicaciones traen sus perfiles por defecto, por ejemplo, los servidores web.
 
+#### Información de los perfiles {#informacion-de-perfiles}
+
 Para listar los perfiles de aplicación disponibles en nuestros sistema podemos usar el comando:
 
 ```bash
@@ -149,6 +154,8 @@ Si el nombre del perfil contiene espacios debemos usar comillas, por ejemplo:
 sudo ufw app info "Nombre Perfil"
 ```
 
+#### Habilitar y deshabilitar perfiles {#habilitar-deshabilitar-perfiles}
+
 Para habilitar (activar) un perfil de aplicación tenemos el siguiente comando:
 
 ```bash
@@ -159,6 +166,31 @@ Mientras que para deshabilitar un perfil tenemos:
 
 ```bash
 sudo ufw delete allow NombrePerfil
+```
+
+#### Crear y actualizar perfiles {#crear-actualizar-perfiles}
+
+Los archivos que definen los perfiles de las aplicaciones pueden hallarse en el directorio:
+
+```bash
+/etc/ufw/applications.d/
+```
+
+Estos perfiles son archivos de texto plano con extensión `.profile` y con una estructura como la siguiente:
+
+```bash
+[Apache Full]
+title=Web Server (HTTP,HTTPS)
+description=Apache v2 is the next generation of the omnipresent Apache web server.
+ports=80,443/tcp
+```
+
+Donde el nombre del perfil es el que aparece entre `[]`.
+
+Si hemos realizado algún cambio en los archivos de perfiles podemos ejecutar el siguiente comando para que el motor de reglas actualize su vigilancia:
+
+```bash
+sudo ufw app update NombrePerfil
 ```
 
 ### Reglas de tráfico {#}
