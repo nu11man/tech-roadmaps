@@ -7,7 +7,7 @@ title: Administración de Firewall en Servidores Ubuntu
 
 La administración de la seguridad de nuestros servidores es tan importante como la calidad de las aplicaciones que se ejecutan en ellos. En esta entrada vamos a ver todo lo que necesitamos para gestionar de forma segura las conexiones hacia nuestro servidor usando un cortafuegos (Firewall).
 
-Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Ubuntu FireWall** (UFW)
+Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncomplicated FireWall** (UFW)
 
 #### Contenido
 
@@ -40,7 +40,7 @@ sudo apt update
 sudo apt install ufw
 ```
 
-**Nota**: _ufw_ corresponde a las siglas de la aplicación `Ubuntu FireWall`.
+**Nota**: _ufw_ corresponde a las siglas de la aplicación `Uncomplicated FireWall`.
 
 Ahora debemos hacer unos ajustes iniciales, entre ellos vamos a poner unas configuraciones básicas, permitir todo el tráfico saliente y negar todo el trafico entrante (habilitaremos solo lo necesario más adelante).
 
@@ -61,9 +61,39 @@ En caso de que (por seguridad) nuestro servidor use un puerto SSH diferente, eje
 sudo ufw allow PUERTO/tcp
 ```
 
-### Conocer el estado del servicio de firewall {#gestion-de-servicios}
+### Gestionar el servicio de firewall {#gestion-de-servicios}
 
-En primer lugar vamos a necesitar saber si tenemos el firewall installado y en qué estado se encuentra dicho servicio, para ello
+Como en los demás servicios del sistema operativo, en ubuntu podemos gestionar y monitorear el servicio de firewall con el comando `systemctl`.
+
+Para conocer el estado de este servicio podemos ejecutar la línea:
+
+```bash
+sudo systemctl status ufw
+```
+
+Para iniciar el servicio si se encuentra inactivo:
+
+```bash
+sudo systemctl start ufw
+```
+
+Para detener el servicio:
+
+```bash
+sudo systemctl stop ufw
+```
+
+Para habilitar el inicio automático del servicio en el arranque del sistema operativo:
+
+```bash
+sudo systemctl enable ufw
+```
+
+Para deshabilitar el inicio automático:
+
+```bash
+sudo systemctl disable ufw
+```
 
 ### Conocer el estado del firewall {#estado-de-firewall}
 
