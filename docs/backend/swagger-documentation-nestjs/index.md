@@ -68,6 +68,8 @@ Estos decoradores reciben un objeto de configuración que puede contener los sig
 - `type`: Indica explícitamente el tipo de dato. Si es un array `type: [tipo nativo]`.
 - `maxLength` | `minLength`: Indica la longitud máxima y mínima.
 - `enum`: Si el atributo es un enum, pasamos un array con los elementos.
+- `example`: Permite indicar un ejemplo del contenido del atributo.
+- `examples`: Permite indicar varios ejemplos para el atributo.
 
 Entre otras posibles configuraciones, es posible profundizar más en estos decoradores en la [documentación oficial de NestJS para Swagger](https://docs.nestjs.com/openapi/types-and-parameters).
 
