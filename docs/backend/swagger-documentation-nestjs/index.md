@@ -11,6 +11,7 @@ title: Documentación automática con Swagger en NestJS
 - [Configuración del proyecto](#ajuste-configuracion)
 - [Seguridad de la documentación](#seguridad-documentacion)
 - [Documentación de DTO](#documentar-dto)
+- [Documentación de entidades de base de datos](documentacion-entidades)
 - [Documentación de endpoints](#documentar-endpoints)
   - [Descripción del endpoint](#descripcion-endpoint)
   - [Descripción de las respuestas](#descripcion-respuestas)
@@ -51,6 +52,26 @@ await bootstrap();
 ```
 
 ### Documentación de DTO {#documentar-dto}
+
+Para documentar los atributos de un DTO tenemos algunos decoradores muy útiles, como, por ejemplo:
+
+- `@ApiProperty()`
+- `@ApiPropertyOptional()`
+
+Estos decoradores vienen del paquete `@nestjs/swagger`. Como el nombre indica uno se usa cuando la propiedad es requerida y el otro cuando es opcional.
+
+Estos decoradores reciben un objeto de configuración que puede contener los siguientes atributos:
+
+- `description`: Una breve descripción del atributo.
+- `default`: Indica el valor por defecto.
+- `minimum` | `maximum`: El valor mínimo o máximo que puede tomar.
+- `type`: Indica explícitamente el tipo de dato. Si es un array `type: [tipo nativo]`.
+- `maxLength` | `minLength`: Indica la longitud máxima y mínima.
+- `enum`: Si el atributo es un enum, pasamos un array con los elementos.
+
+Entre otras posibles configuraciones, es posible profundizar más en estos decoradores en la [documentación oficial de NestJS para Swagger](https://docs.nestjs.com/openapi/types-and-parameters).
+
+### Documentación de entidades de base de datos {#documentacion-entidades}
 
 ### Documentación de endpoints {#documentar-endpoints}
 
