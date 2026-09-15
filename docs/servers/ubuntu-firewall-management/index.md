@@ -22,14 +22,15 @@ Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncompli
 - [Reglas de tráfico](#reglas-de-trafico)
   - [Habilitar conexiones un puerto específico](#habilitar-conexiones-a-puerto)
   - [Permitir conexiones a una aplicación](#conexiones-usando-perfiles)
-  - [Bloquear una dirección IP](#)
-  - [Bloquear una subred](#)
-  - [Listar las reglas del firewall](#)
-  - [Eliminar una regla del firewall](#)
-- [Gestión de logs](#)
-  - [Ubicación de los logs](#)
-  - [Estado del logging](#)
-  - [Niveles de logging](#)
+  - [Permitir conexiones directas a una aplicación](#conexiones-ip-usando-perfiles)
+  - [Bloquear una dirección IP](#bloquear-direccion-ip)
+  - [Bloquear una subred](#bloquear-subred)
+  - [Listar las reglas del firewall](#listar-reglas-firewall)
+  - [Eliminar una regla del firewall](#eliminar-reglas-firewall)
+- [Gestión de logs](#logging)
+  - [Ubicación de los logs](#ubicacion-registros)
+  - [Estado del logging](#estados-de-logging)
+  - [Niveles de logging](#niveles-de-logging)
 
 ---
 
@@ -233,21 +234,145 @@ sudo ufw allow 22
 
 #### Permitir conexiones a una aplicación {#conexiones-usando-perfiles}
 
-#### Bloquear una dirección IP {#}
+Como vimos en el apartado de perfiles, para permitir conexiones a aplicaciones descritas en un archivo de perfil, solo necesitamos ejecutar la siguiente instrucción:
 
-#### Bloquear una subred {#}
+```bash
+sudo ufw allow NombrePerfil
+```
 
-#### Listar las reglas del firewall {#}
+Si el nombre del perfil contiene espacios, usamos comillas dobles:
 
-#### Eliminar una regla del firewall {#}
+```bash
+sudo ufw allow "nombre del perfil"
+```
 
-### Gestión de logs {#}
+#### Permitir conexiones directas a una aplicación {#conexiones-ip-usando-perfiles}
 
-#### Ubicación de los logs {#}
+Por otra parte, podemos aceptar conexiones hacia una aplicación, que provengan de una dirección IP específica. Para ello necesitamos identificar la dirección IP pública que deseamos configurar, lo podemos hacer con la línea:
 
-#### Estado del logging {#}
+```bash
+curl -4 icanhazip.com
+```
 
-#### Niveles de logging {#}
+Luego podemos ejecutar la siguiente instrucción para relaciónar un perfil con esa dirección IP:
+
+```bash
+sudo ufw allow from <IP> to any app <NombrePerfil> comment "comentario"
+```
+
+#### Bloquear una dirección IP {#bloquear-direccion-ip}
+
+Si por alguna razón deseamos bloquear una dirección IP específica, pdemos ejecutar la siguiente instrucción:
+
+```bash
+sudo ufw deny from <IP>
+```
+
+#### Bloquear una subred {#bloquear-subred}
+
+No tenemos que realizar bloqueos una a una las direcciones IP, podemos bloquear las conexiones de una subred completa:
+
+```bash
+sudo ufw deny from <IP/mask>
+```
+
+Por ejemplo:
+
+```bash
+sudo ufw deny from 203.0.113.100/24
+```
+
+#### Listar las reglas del firewall {#listar-reglas-firewall}
+
+Como vimos en la sección de **conocer el estado del firewall**, si deseamos listar las reglas presentes en el firewall, podemos ejecutar la siguiente instrucción:
+
+```bash
+sudo ufw status numbered
+```
+
+#### Eliminar una regla del firewall {#eliminar-reglas-firewall}
+
+Para aliminar una regla de nuestro firewall, primero debemos conocer su identificador como vimos en la sección anterior y, posteriormente, ejecutar la siguiente línea:
+
+```bash
+sudo ufw delete <ID>
+```
+
+### Gestión de logs {#logging}
+
+Un aspecto muy importante, casi de cualquier software, es la información de logging, que nos permite analizar en tiempo real o posteriormente las transacciones y los eventos que han ocurrido. En este apartado veremos como se gestionan con **UFW**.
+
+#### Ubicación de los logs {#ubicacion-registros}
+
+Al igual que con la mayoría de aplicaciones que se ejecutan en un servidor Linux, los logs suelen almacenarse en el directorio `/var`. En el caso de `ufw` los logs pueden encontrarse en la ruta:
+
+```bash
+   /var/log/ufw.log
+```
+
+#### Estado del logging {#estado-de-logging}
+
+Podemos saber si el logging de la aplicación está activo o apagado mediante el comando:
+
+```bash
+sudo ufw status verbose
+```
+
+Tras la ejecución obtendremos una salida como la siguiente:
+
+```bash
+Status: active
+Logging: off
+Default: deny (incoming), allow (outgoing), deny (routed)
+New profiles: skip
+...
+```
+
+Podemos encender el logging con:
+
+```bash
+sudo ufw logging on
+```
+
+Podemos detener el logging con:
+
+```bash
+sudo ufw logging off
+```
+
+#### Niveles de logging {#niveles-de-logging}
+
+Similar a otras herramientas, _UFW_ cuenta con diferentes niveles de logging que nos muestran diferentes niveles de información en los logs. A continuación se listan los 5 niveles desde la documentación oficial:
+
+- **`off`**: Means logging is disabled.
+- **`low`**: Will store logs related to blocked packets that do not match the current firewall rules and will show log entries related to logged rules.
+- **`medium`**: In addition to all the logs offered by the low level, you get logs for invalid packets, new connections, and logging done through rate limiting.
+- **`high`**: Will include logs for packets with rate limiting and without rate limiting.
+- **`full`**: This level is similar to the high level but does not include the rate limiting.
+
+En la descripción del nivel `low` puedes ver que se menciona `logged rules`, y es que es posible parametrizar las reglas para que guarden un registro cuando un paquete coincide con la regla, no todas las interesacciones con las reglas generan logs, para activar esta opción manualmente en una regla usamos la opción **log** (registra la primera interacción) o **log-all** (registra todos los paquetes que interactuan con la regla), veamos la sintaxis:
+
+```bash
+sudo ufw allow log <puerto o perfil>
+```
+
+Si quetemos cambiar el nivel de logging de nuestro firewall ejecutamos la siguiente sintaxis, donde `logging_level` representa uno de los valores listados anteriormente.
+
+```bash
+sudo ufw logging <logging_level>
+```
+
+Por ejemplo:
+
+```bash
+sudo ufw logging medium
+```
+
+Verificamos el cambio con:
+
+```bash
+sudo ufw status verbose
+```
 
 Esto ha sido todo por hoy, con los conocimientos expuestos puedes gestionar una gran parte de la seguridad que se requiere para mantener un sistema expuesto a internet. Pero esto no es suficiente, existen muchas amenzas ahí afuera y también herramientas que nos ayudan a gestionarlas. En la próxima entrada hablaremos de un mecanismo para ayudarnos a bloquear automáticamente ataques de fuerza bruta.
 
