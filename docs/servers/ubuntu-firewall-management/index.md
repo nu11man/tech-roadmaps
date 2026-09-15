@@ -310,7 +310,7 @@ Al igual que con la mayoría de aplicaciones que se ejecutan en un servidor Linu
    /var/log/ufw.log
 ```
 
-#### Estado del logging {#estado-de-logging}
+#### Estado del logging {#estados-de-logging}
 
 Podemos saber si el logging de la aplicación está activo o apagado mediante el comando:
 
