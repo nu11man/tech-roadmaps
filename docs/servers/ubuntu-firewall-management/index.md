@@ -7,7 +7,7 @@ title: Administración de Firewall en Servidores Ubuntu
 
 La administración de la seguridad de nuestros servidores es tan importante como la calidad de las aplicaciones que se ejecutan en ellos. En esta entrada vamos a ver todo lo que necesitamos para gestionar de forma segura las conexiones hacia nuestro servidor usando un cortafuegos (Firewall).
 
-Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncomplicated FireWall** (UFW)
+Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncomplicated FireWall** (UFW) en Ubuntu.
 
 #### Contenido
 
@@ -19,10 +19,9 @@ Altamente versatil, potente y sencillo, hoy veremos como trabajar con **Uncompli
   - [Información de los perfiles](#informacion-de-perfiles)
   - [Habilitar y deshabilitar perfiles](#habilitar-deshabilitar-perfiles)
   - [Crear y actualizar perfiles](#crear-actualizar-perfiles)
-- [Reglas de tráfico](#)
-  - [Habilitar un puerto específico](#)
-  - [Permitir conexiones a un puerto](#)
-  - [Permitir conexiones a una aplicación](#)
+- [Reglas de tráfico](#reglas-de-trafico)
+  - [Habilitar conexiones un puerto específico](#habilitar-conexiones-a-puerto)
+  - [Permitir conexiones a una aplicación](#conexiones-usando-perfiles)
   - [Bloquear una dirección IP](#)
   - [Bloquear una subred](#)
   - [Listar las reglas del firewall](#)
@@ -107,6 +106,26 @@ sudo ufw status [verbose]
 ```
 
 Cuando se utiliza la opción `verbose` nos mostrará información más detallada, como el nivel de logging actual o las políticas por defecto.
+
+Una opción adicional del comando `status` nos permite listar de forma numerada las reglas activas del firewall, para ellos ejecutamos la siguiente línea:
+
+```bash
+sudo ufw status numbered
+```
+
+También podemos conocer las reglas agregadas al firewall antes de habilitarlo usando el siguiente comando:
+
+```bash
+sudo ufw show added
+```
+
+Además, podemos ver los puertos en los cuales se están escuchando conexiones activamente:
+
+```bash
+sudo ufw show listening
+```
+
+Esto nos basta para conocer el estado general de nuestro firewall, ahora vamos a ver como gestionar el servicio de cara al sistema operativo.
 
 ### Habilitar, deshabilitar y reiniciar el firewall {#gestion-de-firewall}
 
@@ -193,13 +212,26 @@ Si hemos realizado algún cambio en los archivos de perfiles podemos ejecutar el
 sudo ufw app update NombrePerfil
 ```
 
-### Reglas de tráfico {#}
+### Reglas de tráfico {#reglas-de-trafico}
 
-#### Habilitar un puerto específico {#}
+En esta sección vamos a estar revisando el paso a paso para la gestión de las reglas de firewall, cómo permitir conexiones a puertos o aplicaciones y cómo realizar bloqueos, tanto a direcciones IP específicas o a subredes enteras.
 
-#### Permitir conexiones a un puerto {#}
+#### Habilitar conexiones un puerto específico {#habilitar-conexiones-a-puerto}
 
-#### Permitir conexiones a una aplicación {#}
+La notación para habilitar conexiones TCP a un puerto es la siguiente (a modo de ejemplo):
+
+```bash
+sudo ufw allow 22/tcp
+```
+
+Por otra parte, si no especificamos el protocolo, las conexiones se habilitaran tanto en UDP como TCP.
+
+```bash
+# Habilitar conexión en el puerto 22 para UDP y TCP
+sudo ufw allow 22
+```
+
+#### Permitir conexiones a una aplicación {#conexiones-usando-perfiles}
 
 #### Bloquear una dirección IP {#}
 

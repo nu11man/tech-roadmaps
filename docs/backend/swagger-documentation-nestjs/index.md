@@ -191,3 +191,65 @@ async create(@Body() createCatDto: CreateCatDto) {
 ```
 
 ### Seguridad de la documentación {#seguridad-documentacion}
+
+To document query and route parameters in NestJS, you use the @ApiParam() and @ApiQuery() decorators from the @nestjs/swagger package.Here is a complete example showing how to implement both alongside your route handlers:
+
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('products')
+@Controller('products')
+export class ProductsController {
+
+@Get(':id')
+@ApiOperation({ summary: 'Get a product by ID' })
+// 1. Documenting a Route/Path Parameter
+@ApiParam({
+name: 'id',
+type: String,
+description: 'The unique identifier of the product',
+example: 'prod_95x82103',
+})
+findOne(@Param('id') id: string) {
+return `This action returns product #${id}`;
+}
+
+@Get()
+@ApiOperation({ summary: 'List all products with pagination' })
+// 2. Documenting individual Query Parameters
+@ApiQuery({
+name: 'limit',
+type: Number,
+required: false,
+description: 'Number of items to return per page',
+example: 10,
+})
+@ApiQuery({
+name: 'search',
+type: String,
+required: false,
+description: 'Filter products by name or description',
+})
+findAll(@Query('limit') limit?: number, @Query('search') search?: string) {
+return `Returns products filtered by "${search}", limited to ${limit} items.`;
+}
+}
+
+Pro-Tip: Documenting a Query DTOIf you have a lot of query parameters, it is much cleaner to group them into a class (Data Transfer Object) and use the @ApiProperty() decorator inside that class. Swagger will automatically pick them up without cluttering your controller:
+
+// products-query.dto.ts
+import { ApiPropertyOptional } from '@nestjs/swagger';
+
+export class ProductsQueryDto {
+@ApiPropertyOptional({ description: 'Number of items to return', example: 10 })
+limit?: number;
+
+@ApiPropertyOptional({ description: 'Filter products by name' })
+search?: string;
+}
+
+// In your controller:
+@Get()
+findAll(@Query() query: ProductsQueryDto) {
+// Swagger automatically documents 'limit' and 'search' here!
+}
