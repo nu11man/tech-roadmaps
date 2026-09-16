@@ -126,7 +126,7 @@ Un ejemplo de los anterior es:
   }
 ```
 
-#### Describir path params {#describir-path-params}
+#### Describir path params {#documentar-path-params}
 
 Como vimos en una entrada anterior dedicada a los llamados **query params** y **path params**, aprendimos que los _path params_ corresponden a segmentos variables o parametrizables de una ruta, son valores variables normalmente utilizados para identificar un recurso específico dentro de un conjunto.
 
@@ -148,7 +148,7 @@ findOne(@Param('id') id: string) {
 }
 ```
 
-#### Describir query params {#describir-query-params}
+#### Describir query params {#documentar-query-params}
 
 Los _query params_ corresponden a valores que se pasan en la URL después del símbolo `?` y que vienen dados en forma de `key=value` separados por un símbolo `&`. Los _query params_ son el mecanismo utilizado para filtrar, agrupar u ordenar recursos en un conjunto.
 
