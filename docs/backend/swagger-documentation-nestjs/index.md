@@ -5,6 +5,10 @@ title: Documentación automática con Swagger en NestJS
 
 # Documentación automática con Swagger en NestJS
 
+Cuando estamos construyendo un servicio web, una documentación de alta calidad es tan importante como la calidad del código que escribimos. Finalmente la documentación terminamos consumiendo nosotros mismos en el futuro o los desarrolladores de otros servicios o clientes que vayan a consumir nuestros recursos.
+
+En esta entrada vamos a ver todo lo que necesitamos para generar automáticamente una documentación de alta calidad con **Swagger**, formalmente conocido ahora como la especificación **OpenAPI**.
+
 #### Contenido
 
 - [Instalación de dependencias](#instalacion-swagger)
@@ -18,6 +22,8 @@ title: Documentación automática con Swagger en NestJS
   - [Documentar headers](#documentar-headers)
   - [Documentar rutas protegidas con Bearer Token](#documentar-rutas-protegidas)
   - [Descripción de las respuestas](#descripcion-respuestas)
+
+---
 
 ### Instalación de dependencias
 
