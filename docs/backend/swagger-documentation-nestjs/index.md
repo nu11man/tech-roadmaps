@@ -11,11 +11,13 @@ title: Documentación automática con Swagger en NestJS
 - [Configuración del proyecto](#ajuste-configuracion)
 - [Seguridad de la documentación](#seguridad-documentacion)
 - [Documentación de DTO](#documentar-dto)
-- [Documentación de entidades de base de datos](documentacion-entidades)
 - [Documentación de endpoints](#documentar-endpoints)
   - [Descripción del endpoint](#descripcion-endpoint)
+  - [Documentar path params](#documentar-path-params)
+  - [Documentar query params](#documentar-query-params)
+  - [Documentar headers](#documentar-headers)
+  - [Documentar rutas protegidas con Bearer Token](#documentar-rutas-protegidas)
   - [Descripción de las respuestas](#descripcion-respuestas)
-  - [Ejemplo de respuestas](#ejemplo-respuestas)
 
 ### Instalación de dependencias
 
@@ -73,7 +75,7 @@ Estos decoradores reciben un objeto de configuración que puede contener los sig
 - `description`: Una breve descripción del atributo.
 - `default`: Indica el valor por defecto.
 - `minimum` o `maximum`: El valor mínimo o máximo que puede tomar.
-- `type`: Indica explícitamente el tipo de dato. Si es un array `type: [tipo nativo]`.
+- `type`: Indica explícitamente el tipo de dato. Si es un array `type: [tipo_dato]`.
 - `maxLength` o `minLength`: Indica la longitud máxima y mínima.
 - `enum`: Si el atributo es un enum, pasamos un array con los elementos.
 - `example`: Permite indicar un ejemplo del contenido del atributo.
@@ -91,8 +93,6 @@ import { CreatePostDto } from "./create-post.dto";
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {}
 ```
-
-### Documentación de entidades de base de datos {#documentacion-entidades}
 
 ### Documentación de endpoints {#documentar-endpoints}
 
@@ -120,9 +120,91 @@ Un ejemplo de los anterior es:
   }
 ```
 
+#### Describir path params {#describir-path-params}
+
+Como vimos en una entrada anterior dedicada a los llamados **query params** y **path params**, aprendimos que los _path params_ corresponden a segmentos variables o parametrizables de una ruta, son valores variables normalmente utilizados para identificar un recurso específico dentro de un conjunto.
+
+Documentar los _path params_ es de suma importancia para mejorar la experiencia de desarrollo de quienes consumen nuestra API. Podemos documentar un _path param_ utilizando el decorador `@ApiParam()`. Observemos el siguiente ejemplo:
+
+```typescript
+@Controller('products')
+export class ProductsController {
+
+@Get(':id')
+@ApiParam({
+  name: 'id',
+  type: String,
+  description: 'The unique identifier of the product',
+  example: 'prod_95x82103',
+})
+findOne(@Param('id') id: string) {
+  return `This action returns product #${id}`;
+}
+```
+
 #### Describir query params {#describir-query-params}
 
-#### Describir path params {#describir-path-params}
+Los _query params_ corresponden a valores que se pasan en la URL después del símbolo `?` y que vienen dados en forma de `key=value` separados por un símbolo `&`. Los _query params_ son el mecanismo utilizado para filtrar, agrupar u ordenar recursos en un conjunto.
+
+Un ejemplo típico de una URL con _query params_ puede ser un endpoint retorna una lista de vehículos pero puede filtrar por marca y además tiene paginación y retorna máximo 5 elementos:
+
+```typescript
+https://example.com/cars?brand=chevrolet&limit=5
+```
+
+Podemos documentar los _query params_ de dos formas, la primera es individualmente, y está bien cuando son uno o dos query params máximo, como vemos a continuación:
+
+```typescript
+@Get('/cars')
+@ApiOperation({ summary: 'Return a list of cars with pagination' })
+@ApiQuery({
+  name: 'limit',
+  type: Number,
+  required: false,
+  description: 'Number of items to return per page',
+  example: 10,
+})
+@ApiQuery({
+  name: 'brand',
+  type: String,
+  required: false,
+  description: 'Filter cars by brand name',
+})
+findAll(@Query('limit') limit?: number, @Query('brand') brand?: string) {
+  return `Returns cars filtered by "${brand}", limited to ${limit} items.`;
+}
+```
+
+Por otra parte, cuando tenemos varios _query params_ que pueden entrar en nuestro servicio, lo más adecuado es crear un DTO, es decir, una clase que en sus atributos describe cada uno de los _query params_ y además los anota con los decoradores `@ApiProperty()` y `@ApiPropertyOptional()` como vemos en el siguiente ejemplo:
+
+```typescript
+// products-query.dto.ts
+import { ApiPropertyOptional } from "@nestjs/swagger";
+
+export class ProductsQueryDto {
+  @ApiPropertyOptional({
+    description: "Number of items to return",
+    example: 10,
+  })
+  limit?: number;
+
+  @ApiPropertyOptional({ description: "Filter cars by brand name" })
+  brand?: string;
+}
+```
+
+Luego al hacer uso del DTO que definimos para los _query params_, Swagger automáticamente documentará cada uno de ellos, nuestro controlador quedará más limpio como se ve en el siguiente fragmento:
+
+```typescript
+@Get('/cars')
+findAll(@Query() query: ProductsQueryDto) {
+// Swagger automaticament documenta 'limit' y 'brand'
+}
+```
+
+### Documentar headers {#documentar-headers}
+
+### Documentar rutas protegidas con Bearer Token {#documentar-rutas-protegidas}
 
 #### Descripción de las respuestas {#descripcion-respuestas}
 
@@ -130,7 +212,7 @@ Podemos describir posibles respuestas de nuestro endpoint mediante el decorador 
 
 - `status`: El valor numérico del código de respuesta HTTP.
 - `description`: Una descripción de la respuesta entregada.
-- `type`: Una clase decorada que indica los atributos de la respuesta.
+- `type`: Una clase decorada que indica los atributos de la respuesta (algunas veces se corresponde con una clase decorada de una entidad de base de datos).
 - `isArray`: Un valor booleano que indica si la respuesta corresponde a un array.
 
 Un ejemplo de la descripción de respuestas se muestra a continuación:
@@ -190,66 +272,6 @@ async create(@Body() createCatDto: CreateCatDto) {
 }
 ```
 
+**Nota**: Si queremos que nuestra documentación muestre ejemplos de respuesta de nuestro endpoint, debemos asegurarnos de pasar una clase en el atributo `type` del objeto de configuración que se pasa a `@ApiResponse`. Esta clase debe describir la forma de la respuesta, pensemos en un DTO de respuesta. Es una clase comentada con los decoradores `@ApiProperty()` y `@ApiPropertyOptional()`.
+
 ### Seguridad de la documentación {#seguridad-documentacion}
-
-To document query and route parameters in NestJS, you use the @ApiParam() and @ApiQuery() decorators from the @nestjs/swagger package.Here is a complete example showing how to implement both alongside your route handlers:
-
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-
-@ApiTags('products')
-@Controller('products')
-export class ProductsController {
-
-@Get(':id')
-@ApiOperation({ summary: 'Get a product by ID' })
-// 1. Documenting a Route/Path Parameter
-@ApiParam({
-name: 'id',
-type: String,
-description: 'The unique identifier of the product',
-example: 'prod_95x82103',
-})
-findOne(@Param('id') id: string) {
-return `This action returns product #${id}`;
-}
-
-@Get()
-@ApiOperation({ summary: 'List all products with pagination' })
-// 2. Documenting individual Query Parameters
-@ApiQuery({
-name: 'limit',
-type: Number,
-required: false,
-description: 'Number of items to return per page',
-example: 10,
-})
-@ApiQuery({
-name: 'search',
-type: String,
-required: false,
-description: 'Filter products by name or description',
-})
-findAll(@Query('limit') limit?: number, @Query('search') search?: string) {
-return `Returns products filtered by "${search}", limited to ${limit} items.`;
-}
-}
-
-Pro-Tip: Documenting a Query DTOIf you have a lot of query parameters, it is much cleaner to group them into a class (Data Transfer Object) and use the @ApiProperty() decorator inside that class. Swagger will automatically pick them up without cluttering your controller:
-
-// products-query.dto.ts
-import { ApiPropertyOptional } from '@nestjs/swagger';
-
-export class ProductsQueryDto {
-@ApiPropertyOptional({ description: 'Number of items to return', example: 10 })
-limit?: number;
-
-@ApiPropertyOptional({ description: 'Filter products by name' })
-search?: string;
-}
-
-// In your controller:
-@Get()
-findAll(@Query() query: ProductsQueryDto) {
-// Swagger automatically documents 'limit' and 'search' here!
-}
