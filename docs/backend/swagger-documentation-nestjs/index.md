@@ -208,7 +208,7 @@ findAll(@Query() query: ProductsQueryDto) {
 }
 ```
 
-### Documentar headers {#documentar-headers}
+#### Documentar headers {#documentar-headers}
 
 En NestJS podemos documentar un header utilizando el decorador `@ApiHeader()` del paquete `@nestjs/swagger`.
 
@@ -324,7 +324,7 @@ import {
 
 Una nota final a considerar es que si el header solo se reutiliza unicamente dentro de los endpoints expuestos en un controller y no en los demás, deberíamos entonces ubicar los decoradores personalizados, dentro del módulo que hace uso de el, de este modo el directorio `common` se mantendrá más limpio y unicamente tendrá implementaciones realmente compartidas.
 
-### Documentar rutas protegidas con Bearer Token {#documentar-rutas-protegidas}
+#### Documentar rutas protegidas con Bearer Token {#documentar-rutas-protegidas}
 
 La autorización es un header más. Sin embargo, no solemos documentar el header de autorización que usa un Bearer Token usando el decorador `@ApiHeader()`, sino uno de los decoradores dedicados de `@nestjs/swagger`. El decorador `ApiBearerAuth()`.
 
