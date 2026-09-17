@@ -19,6 +19,7 @@ En esta entrada vamos a ver todo lo que necesitamos para generar automáticament
   - [Descripción del endpoint](#descripcion-endpoint)
   - [Documentar path params](#documentar-path-params)
   - [Documentar query params](#documentar-query-params)
+  - [Documentar de Body de la petición](#documentar-el-body)
   - [Documentar headers](#documentar-headers)
   - [Documentar rutas protegidas con Bearer Token](#documentar-rutas-protegidas)
   - [Descripción de las respuestas](#descripcion-respuestas)
@@ -348,6 +349,34 @@ const config = new DocumentBuilder()
   .addBearerAuth()
   .build();
 ```
+
+#### Documentar el Body de la petición {#documentar-el-body}
+
+Cuando realizamos la descripción de los atributos en un DTO estamos ya adelantando la documentación que describe el _payload_ que llega a cada uno de nuestros endpoints, tenemos entonces dos formas de documentar el cuerpo de una petición, utilizando el decorador `@ApiBody()` o dejando que Swagger procese el parámetro body de la función handler. Veamos ambos casos.
+
+Podemos definir un DTO y usarlo de forma explícita en el decorador `@ApiBody()` y pasando el DTO en el atributo `type` del objeto de configuración. Este es un caso típico, por ejemplo, en el endpoint `/loging` donde es PassportJS el que hace el procesamiento del cuerpo de la petición y nosotros no tenemos que usar el contenido de ese _body_.
+
+```typescript
+@ApiBody({ type: LoginDTO })
+@UseGuards(AuthGuard('local'))
+@Post('login')
+login(@Req() req: Request) {
+    const user = req.user as User;
+    ...
+  };
+}
+```
+
+Por otra parte, la documentación típica de un _body_ es bastante automática al sar el DTO como prámetro en el handler del controlador, veamos un ejemplo a continuación:
+
+```typescript
+@Post()
+create(@Body() createPostDto: CreatePostDto) {
+  ...
+}
+```
+
+En este caso, Swagger extraerá toda la información desde el DTO `createPostDto` y la utilizará para nutrir la información del endpoint.
 
 #### Descripción de las respuestas {#descripcion-respuestas}
 
