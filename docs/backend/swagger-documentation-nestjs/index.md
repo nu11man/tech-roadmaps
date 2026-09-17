@@ -273,7 +273,7 @@ getUsers() {
 
 En caso de que tengas múltiples implementaciones de decoradores personalizados, una estructura como la siguiente puede ser recomendable:
 
-```typescript
+```
 src/
 ├── common/
 │   ├── decorators/
