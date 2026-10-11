@@ -35,7 +35,53 @@ Luego, debemos actualizar el `config loader`, el `schema validation` y la interf
 
 ### Crear un api-key Guard {#crear-api-key-guard}
 
-Con el secreto creado y la configuración de ambiente actualizada, vamos a crear el archivo `api-key.guard.ts` en la ruta que corresponda, por ejemplo, si vamos a proteger un módulo específico podemos crear un directorio de la forma `module_name/guards/api-key.guard.ts`. Por otra parte
+Con el secreto creado y la configuración de ambiente actualizada, vamos a crear el archivo `api-key.guard.ts` en la ruta que corresponda, por ejemplo, si vamos a proteger un módulo específico podemos crear un directorio de la forma `module_name/guards/api-key.guard.ts`. Por otra parte, si la validación la aplicaremos a los controladores de diferentes módulos, podremos guardarla en un directorio común de tipo:
+
+```bash
+src/
+├── common/
+│   └── guards/
+│       └── api-key.guard.ts
+├── auth/
+├── users/
+└── lists/
+```
+
+Una vez definido el archivo de nuestra clase, agregamos la siguiente implementación:
+
+```typescript
+import { timingSafeEqual } from "crypto";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { EnvConfig } from "@config/environment/env.model";
+
+@Injectable()
+export class ApiKeyGuard implements CanActivate {
+  constructor(private readonly config: ConfigService<EnvConfig>) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const provided = request.header("x-api-key");
+    const expected = this.config.getOrThrow("api_key", { infer: true });
+
+    if (!provided) throw new UnauthorizedException("Missing API key");
+
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+
+    // Constant-time comparison to avoid timing attacks
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      throw new UnauthorizedException("Invalid API key");
+    }
+    return true;
+  }
+}
+```
 
 ### Proteger las rutas con api-key {#proteger-rutas-con-api-key}
 
