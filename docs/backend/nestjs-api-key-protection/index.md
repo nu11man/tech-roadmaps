@@ -74,7 +74,6 @@ export class ApiKeyGuard implements CanActivate {
     const a = Buffer.from(provided);
     const b = Buffer.from(expected);
 
-    // Constant-time comparison to avoid timing attacks
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
       throw new UnauthorizedException("Invalid API key");
     }
@@ -83,10 +82,20 @@ export class ApiKeyGuard implements CanActivate {
 }
 ```
 
+Del código anterior podemos destacar tres aspectos muy importantes:
+
+- Lanzamos un error `Missing API key` si no hemos definido una variable de entorno de la cual podamos extraer la llave.
+- Lanzamos un error `Invalid API key` si el valor enviado en la cabecera de la request no corresponde con la API Key configurada en el servidor.
+- Utilizamos la función `timingSafeEqual` de la librería `crypto` para hacer la comparación de forma segura con tiempo constante, para evitar los conocidos `timing attacks`.
+
 ### Proteger las rutas con api-key {#proteger-rutas-con-api-key}
+
+Ahora que hemos definido nuestro `api key guard` vamos a ir a nuestro controlador del módulo de usuarios (en este ejemplo particular).
 
 ### Integrar Swagger y api-keys {#integrar-swagger-api-key}
 
 ---
 
 Autor: Julio César Echeverri Marulanda
+
+Fuente: https://claude.ai/chat/d64ff79a-24d4-442d-b75e-9cb7a2d5689c
