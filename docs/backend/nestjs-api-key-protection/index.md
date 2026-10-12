@@ -139,6 +139,71 @@ export class UsersController {
 
 ### Integrar Swagger y api-keys {#integrar-swagger-api-key}
 
+Agregar este nuevo esquema de seguridad es importante, pero no es suficiente. Debemos recordar que la calidad de una aplicación es tan alta como la calidad de su documentación, por esta razón vamos a ver como ajustar nuestra configuración de Swagger.
+
+Swagger solo necesita saber dos cosas:
+
+- Saber que la aplicación usa un esquema de seguridad basada en Api Key.
+- Saber que recursos están protegidos por Api Key.
+
+En primer lugar vamos a registrar el esquema en la configuración general de Swagger en el archivo `src/main.ts`:
+
+```typescript
+const config = new DocumentBuilder()
+    ...
+    .addApiKey(
+      { type: 'apiKey', name: 'x-api-key', in: 'header' },
+      'api-key'
+    )
+    ...
+    .build();
+```
+
+El segundo parámetro del método `addApiKey` corresponde al nombre del esquema, en este caso `api-key`, es importante tenerlo presente porque es el nombre que se usa en el decorador `@ApiSecurity`.
+
+Ahora vamos a la ruta o el controlador protegido y realizamos una anotación como la sigueinte:
+
+```typescript
+@ApiSecurity("api-key")
+@UseGuards(ApiKeyGuard)
+@Controller("users")
+export class UsersController {}
+```
+
+Sin embargo, una implementación más limpia (menos verbosa) no llevaría a implementar un decorador compuesto:
+
+```typescript
+// src/modules/users/decorators/users-api-key.decorator.ts
+import { applyDecorators, UseGuards } from "@nestjs/common";
+import { ApiSecurity, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiKeyGuard } from "../guards/api-key.guard";
+
+export const ApiKeyAuth = () =>
+  applyDecorators(
+    UseGuards(ApiKeyGuard),
+    ApiSecurity("api-key"),
+    ApiUnauthorizedResponse({ description: "Missing or invalid API key" }),
+  );
+```
+
+Luego en el recurso protegido utilizamos el decorador `@ApiKeyAuth` que hemos creado, como por ejemplo:
+
+```typescript
+@ApiTags("users")
+@ApiKeyAuth()
+@Controller("users")
+export class UsersController {
+  @Get()
+  findAll() {}
+}
+```
+
+Observa ahora en la documentación generada como aparece el ícono del candado en los recursos protegidos y además, automaticamente en el dialogo de autorización, ya tenemos la entrada para indicar el api-key.
+
+Ahora los recursos protegidos también documentan automáticamente la respuesta `HTTP 401` con el mensaje `Missing or invalid API key` que indicamos en el decorador.
+
+Eso fue todo por esta entrada, espero que te haya resultado útil. En el próximo artículo estaremos hablando sobre la protección de recursos mediante estrategia de `limitación de requests` o `rate limiter` usando `@nestjs/throttler`.
+
 ---
 
 Autor: Julio César Echeverri Marulanda
