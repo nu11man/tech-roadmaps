@@ -82,20 +82,63 @@ export class ApiKeyGuard implements CanActivate {
 }
 ```
 
-Del código anterior podemos destacar tres aspectos muy importantes:
+Del código anterior podemos destacar cuatro aspectos muy importantes:
 
-- Lanzamos un error `Missing API key` si no hemos definido una variable de entorno de la cual podamos extraer la llave.
+- Lanzamos una excepción si no hemos definido una variable de entorno de la cual podamos extraer la llave.
+- Lanzamos un error `Missing API key` si el cliente no envia el header `x-api-key` (o el nombre que hayamos definido).
 - Lanzamos un error `Invalid API key` si el valor enviado en la cabecera de la request no corresponde con la API Key configurada en el servidor.
 - Utilizamos la función `timingSafeEqual` de la librería `crypto` para hacer la comparación de forma segura con tiempo constante, para evitar los conocidos `timing attacks`.
 
+Cabe resaltar que como hemos hecho uso del servicio `ConfigService`, si no hemos declaro el `ConfigModule` de forma global, debemos importaren el módulo que estamos protegiendo, por ejemplo, para el módulo `Users`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { envSchema } from '@config/environment/env.schema';
+import { configLoader } from '@config/environment/env.loader';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      load: [configLoader],
+      validationSchema: envSchema
+    })
+  ]
+  ...
+})
+export class UsersModule {}
+```
+
 ### Proteger las rutas con api-key {#proteger-rutas-con-api-key}
 
-Ahora que hemos definido nuestro `api key guard` vamos a ir a nuestro controlador del módulo de usuarios (en este ejemplo particular).
+Ahora que hemos definido nuestro `api key guard` vamos a nuestro controlador del módulo de usuarios (en este ejemplo particular). Allí podemos proteger todas las rutas del controlador al aplicar el decorador `@UseGuards()` directamente sobre el mismo.
+
+```typescript
+import { UseGuards } from '@nestjs/common';
+import { ApiKeyGuard } from './guards/api-key.guard';
+
+
+@UseGuards(ApiKeyGuard)
+@Controller('users')
+export class UsersController {
+  ...
+}
+```
+
+Podemos también proteger rutas específicas y no el controlador completo, anotando el handler de la ruta específica, como en el siguiente ejemplo:
+
+```typescript
+export class UsersController {
+  @UseGuards(ApiKeyGuard)
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+}
+```
 
 ### Integrar Swagger y api-keys {#integrar-swagger-api-key}
 
 ---
 
 Autor: Julio César Echeverri Marulanda
-
-Fuente: https://claude.ai/chat/d64ff79a-24d4-442d-b75e-9cb7a2d5689c
